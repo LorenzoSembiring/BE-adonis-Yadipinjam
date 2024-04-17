@@ -11,8 +11,8 @@ export default class extends BaseSchema {
       table.string('email', 254).notNullable().unique()
       table.string('password').notNullable()
       table.string('phone').notNullable()
-      table.string('balance').notNullable()
-      table.string('trust_point').notNullable()
+      table.integer('balance').notNullable()
+      table.integer('trust_point').notNullable()
       table.string('status').notNullable()
       table.enum('role', ['admin', 'user']).notNullable()
 
