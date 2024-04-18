@@ -6,7 +6,10 @@ export default class BookAuthor extends BaseModel {
   declare id: number
 
   @column()
-  declare name: string | null
+  declare author_ID: number
+
+  @column()
+  declare book_ISBN: string
 
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
