@@ -44,7 +44,7 @@ export default class BooksController {
 
   public async createBookAuthor(ISBN: string, author_ID: number){
     try {
-      const data = BookAuthor.create({
+      const data = await BookAuthor.create({
         author_ID: author_ID,
         book_ISBN: ISBN
       })
