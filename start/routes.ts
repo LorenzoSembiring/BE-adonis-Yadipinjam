@@ -8,20 +8,11 @@
 */
 
 import router from '@adonisjs/core/services/router'
-import UsersController from '#controllers/users_controller'
-import BooksController from '#controllers/books_controller'
-import AuthorsController from '#controllers/authors_controller'
-import PublishersController from '#controllers/publishers_controller'
+import "./routes/user.ts"
+import "./routes/publisher.ts"
+import "./routes/book.ts"
+import "./routes/author.ts"
 
-router.group(()=> {
-  router.post('/register', [UsersController, 'register'])
-  router.post('/login', [UsersController, 'login'])
-
-  router.post('/fetch-book',[BooksController, 'fetchGoogleAPI'])
-
-  router.post('author/store',[AuthorsController, 'store'])
-  router.get('author/index',[AuthorsController, 'index'])
-
-  router.post('publisher/store',[PublishersController, 'store'])
-  router.get('publisher/index',[PublishersController, 'index'])
-}).prefix('/api')
+router.get('/', async () => {
+  return { status: 'connected!' }
+})
