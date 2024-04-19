@@ -1,5 +1,6 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import axios from 'axios';
+import BookAuthor from '#models/book_author'
 
 export default class BooksController {
 
@@ -38,6 +39,18 @@ export default class BooksController {
         code: 500,
         error: error.message
       })
+    }
+  }
+
+  public async createBookAuthor(ISBN: string, author_ID: number){
+    try {
+      const data = BookAuthor.create({
+        author_ID: author_ID,
+        book_ISBN: ISBN
+      })
+      return data
+    } catch (error) {
+      return null
     }
   }
 
