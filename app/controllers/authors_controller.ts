@@ -28,6 +28,17 @@ export default class AuthorsController {
       })
     }
   }
+  public async create(name: string):Promise<number|null> {
+    try {
+      const data: Author = await Author.create({
+        name: name
+      })
+
+      return data.id
+    } catch (error) {
+      return null
+    }
+  }
   public async index({ response }: HttpContext) {
     try {
       const data = await Author.all()
