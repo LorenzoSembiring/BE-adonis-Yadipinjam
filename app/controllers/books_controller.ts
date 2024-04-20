@@ -59,6 +59,19 @@ export default class BooksController {
     }
   }
 
+  public async getBookByISBN(ISBN: string){
+    try {
+      const data = await Book.findByOrFail('ISBN',ISBN)
+      if (data) {
+        return data
+      } else {
+        return null
+      }
+    } catch (error) {
+      return null
+    }
+  }
+
   //this code bellow will cretae book entity that acted as master data, it will called when someone uploading their book
   public async createBook(ISBN: string, authors: string[], publisher: string, year: number, title: string) {
     const publishersController = new PublishersController()
