@@ -1,9 +1,12 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import axios from 'axios';
+import db from '@adonisjs/lucid/services/db'
 import Book from '#models/book'
 import BookAuthor from '#models/book_author'
 import Publisher from '#models/publisher';
 import Author from '#models/author'
+import CirculatedBook from '#models/circulated_book'
+import UsersController from '#controllers/users_controller';
 import PublishersController from '#controllers/publishers_controller';
 import AuthorsController from './authors_controller.js';
 
@@ -122,6 +125,46 @@ export default class BooksController {
     } catch (error) {
       await trx.rollback()
       return null
+    }
+  }
+  public async uploadBook({ request, response, auth }: HttpContext) {
+
+    const trx = await db.transaction()
+
+    const { ISBN, authors, publisher, year, title, description, price } = request.body()
+
+    const authorArray: string[] = authors.split("?")
+
+    const bookCheck = this.getBookByISBN(ISBN)
+    const user = await auth.authenticate()
+
+    try {
+      // if the book is exist, just create the circulated_book
+      // if not, create book first
+      if (!await bookCheck) {
+        await this.createBook(ISBN, authorArray, publisher, year, title)
+      }
+      const data = await CirculatedBook.create({
+        description: description,
+        price: price,
+        status: "inactive",
+        books_ISBN: ISBN,
+        user_ID: user.id
+      })
+
+      await trx.commit()
+      return response.status(200).json({
+        code: 200,
+        status: "success",
+        data: data
+      })
+    } catch (error) {
+      await trx.rollback()
+      return response.status(500).json({
+        code: 500,
+        message: "fail",
+        error: error
+      })
     }
   }
 }
