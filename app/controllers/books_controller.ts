@@ -51,7 +51,7 @@ export default class BooksController {
     try {
       const data = await BookAuthor.create({
         author_ID: author_ID,
-        book_ISBN: ISBN
+        books_ISBN: ISBN
       })
       return data
     } catch (error) {
