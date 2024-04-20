@@ -3,7 +3,7 @@ import { BaseModel, column } from '@adonisjs/lucid/orm'
 
 export default class Book extends BaseModel {
   @column({ isPrimary: true })
-  declare ISBN: number
+  declare ISBN: string
 
   @column()
   declare publisher_ID: number
