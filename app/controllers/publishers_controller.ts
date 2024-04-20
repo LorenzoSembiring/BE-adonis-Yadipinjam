@@ -29,7 +29,7 @@ export default class PublishersController {
     }
   }
 
-  public async create(name: string):Promise<number> {
+  public async create(name: string):Promise<number|null> {
     try {
       const data: Publisher = await Publisher.create({
         name: name
