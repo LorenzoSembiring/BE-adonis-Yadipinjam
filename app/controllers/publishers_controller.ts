@@ -28,6 +28,19 @@ export default class PublishersController {
       })
     }
   }
+
+  public async create(name: string):Promise<number> {
+    try {
+      const data: Publisher = await Publisher.create({
+        name: name
+      })
+
+      return data.id
+    } catch (error) {
+      return null
+    }
+  }
+
   public async index({ response }: HttpContext) {
     try {
       const data = await Publisher.all()
