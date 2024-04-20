@@ -8,7 +8,7 @@ export default class extends BaseSchema {
       table.increments('id').notNullable()
       table.string('description')
       table.integer('price')
-      table.enum('status', ['available','unavailable', 'borrowed'])
+      table.string('status')
       table.string('books_ISBN').references('books.ISBN').notNullable()
       table.integer('user_ID').references('users.id').notNullable().unsigned()
       table.dateTime('created_at')
