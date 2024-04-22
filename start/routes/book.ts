@@ -5,5 +5,6 @@ router.group(() => {
   router.post('/fetch-book',[BooksController, 'fetchGoogleAPI'])
   router.post('/book/upload',[BooksController, 'uploadBook'])
   router.get('/book', [BooksController, 'bookIndex'])
+  router.get('/book/circulated', [BooksController, 'circulatedBookIndex'])
 
 }).prefix('/api')

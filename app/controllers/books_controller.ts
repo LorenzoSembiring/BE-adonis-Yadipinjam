@@ -184,4 +184,24 @@ export default class BooksController {
       })
     }
   }
+
+  public async circulatedBookIndex({ request, response}: HttpContext) {
+    try {
+      const page = request.input('page', 1)
+      const limit = request.input('limit', 10)
+
+      const data = await db.from('circulated_books').paginate(page, limit)
+      return response.status(200).json({
+        code: 200,
+        status: "success",
+        data: data
+      })
+    } catch (error) {
+      return response.status(500).json({
+        code: 500,
+        message: "fail",
+        error: error
+      })
+    }
+  }
 }
