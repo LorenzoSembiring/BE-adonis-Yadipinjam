@@ -204,9 +204,10 @@ export default class BooksController {
       })
     }
   }
-  public async activatedCirculatedBook({ params, response }: HttpContext) {
+  public async activatedCirculatedBook({ params, response, auth }: HttpContext) {
     const { id } = params
 
+    const user = await auth.authenticate()
     try {
       // Cari buku berdasarkan ID
       const circulatedBook = await CirculatedBook.find(id)
@@ -215,6 +216,21 @@ export default class BooksController {
         return response.status(404).json({
           code: 404,
           message: 'not found'
+        })
+      }
+
+      if (!user) {
+        return response.status(401).json({
+          code: 401,
+          status: "unauthorized",
+          data: user
+        })
+      }
+
+      if (circulatedBook['$extras']['user_ID'] != user.id) {
+        return response.status(403).json({
+          code: 403,
+          status: "forbidden",
         })
       }
 
