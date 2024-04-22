@@ -169,7 +169,6 @@ export default class BooksController {
   public async bookIndex({ request, response}: HttpContext) {
     try {
       const page = request.qs()
-      console.log(page)
       const data = await db.from('books').paginate(page.page, page.limit)
       return response.status(200).json({
         code: 200,
