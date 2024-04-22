@@ -25,7 +25,7 @@ export default class UsersController {
       role: role.user
     })
 
-    const token = await User.accessTokens.create(user,['*'],{
+    const token = await User.accessTokens.create(user, ['*'], {
       expiresIn: '30 days'
     })
 
@@ -60,7 +60,7 @@ export default class UsersController {
         })
       }
 
-      const token = await User.accessTokens.create(user,['*'],{
+      const token = await User.accessTokens.create(user, ['*'], {
         expiresIn: '30 days'
       })
       return response.status(200).json({
@@ -75,6 +75,22 @@ export default class UsersController {
       return response.status(404).json({
         code: '404',
         message: error,
+      })
+    }
+  }
+  public async getUser({ auth, response }: HttpContext){
+    try {
+      const user = await auth.authenticate()
+      return response.status(200).json({
+        code: 200,
+        status: "success",
+        data: user
+      })
+    } catch (error) {
+      return response.status(500).json({
+        code: 500,
+        message: "fail",
+        error: error
       })
     }
   }

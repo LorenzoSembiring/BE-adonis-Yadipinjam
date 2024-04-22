@@ -6,5 +6,5 @@ router.group(() => {
   router.post('/book/upload',[BooksController, 'uploadBook'])
   router.get('/book', [BooksController, 'bookIndex'])
   router.get('/book/circulated', [BooksController, 'circulatedBookIndex'])
-
+  router.get('/book/circulated/activated/{id}', [BooksController, 'activatedCirculatedBook'])
 }).prefix('/api')

@@ -204,4 +204,34 @@ export default class BooksController {
       })
     }
   }
+  public async activatedCirculatedBook({ params, response }: HttpContext) {
+    const { id } = params
+
+    try {
+      // Cari buku berdasarkan ID
+      const circulatedBook = await CirculatedBook.find(id)
+
+      if (!circulatedBook) {
+        return response.status(404).json({
+          code: 404,
+          message: 'not found'
+        })
+      }
+
+      // Update status menjadi "active"
+      circulatedBook.status = 'active'
+      await circulatedBook.save()
+
+      return response.status(200).json({
+        code: 200,
+        message: 'success',
+        data: circulatedBook
+      })
+    } catch (error) {
+      return response.status(500).json({
+        code: 500,
+        error: error.message
+      })
+    }
+  }
 }
