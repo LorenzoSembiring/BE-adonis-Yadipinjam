@@ -4,5 +4,6 @@ import BooksController from '#controllers/books_controller'
 router.group(() => {
   router.post('/fetch-book',[BooksController, 'fetchGoogleAPI'])
   router.post('/book/upload',[BooksController, 'uploadBook'])
+  router.get('/book', [BooksController, 'bookIndex'])
 
 }).prefix('/api')

@@ -6,7 +6,6 @@ import BookAuthor from '#models/book_author'
 import Publisher from '#models/publisher';
 import Author from '#models/author'
 import CirculatedBook from '#models/circulated_book'
-import UsersController from '#controllers/users_controller';
 import PublishersController from '#controllers/publishers_controller';
 import AuthorsController from './authors_controller.js';
 
@@ -160,6 +159,24 @@ export default class BooksController {
       })
     } catch (error) {
       await trx.rollback()
+      return response.status(500).json({
+        code: 500,
+        message: "fail",
+        error: error
+      })
+    }
+  }
+  public async bookIndex({ request, response}: HttpContext) {
+    try {
+      const page = request.qs()
+      console.log(page)
+      const data = await db.from('books').paginate(page.page, page.limit)
+      return response.status(200).json({
+        code: 200,
+        status: "success",
+        data: data
+      })
+    } catch (error) {
       return response.status(500).json({
         code: 500,
         message: "fail",
