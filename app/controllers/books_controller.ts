@@ -242,11 +242,8 @@ export default class BooksController {
           'circulated_books.id as book_id',
           'circulated_books.description',
           'circulated_books.price',
-          'circulated_books.status',
           'circulated_books.books_ISBN',
           'circulated_books.user_ID',
-          'circulated_books.created_at',
-          'circulated_books.updated_at',
           'circulated_pictures.id as picture_id',
           'circulated_pictures.path as picture_path',
         )
