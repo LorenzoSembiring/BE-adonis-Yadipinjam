@@ -14,6 +14,9 @@ export default class Book extends BaseModel {
   @column()
   declare title: string
 
+  @column()
+  declare imagelink: string
+
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
 
