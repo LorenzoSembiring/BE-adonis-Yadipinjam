@@ -232,23 +232,41 @@ export default class BooksController {
 
   public async circulatedBookIndex({ request, response }: HttpContext) {
     try {
-      const page = request.input('page', 1)
-      const limit = request.input('limit', 10)
+      const page = request.input('page', 1);
+      const limit = request.input('limit', 10);
 
-      const data = await db.from('circulated_books').paginate(page, limit)
+      const data = await db
+        .from('circulated_books')
+        .leftJoin('circulated_pictures', 'circulated_books.id', 'circulated_pictures.circulated_book_ID')
+        .select(
+          'circulated_books.id as book_id',
+          'circulated_books.description',
+          'circulated_books.price',
+          'circulated_books.status',
+          'circulated_books.books_ISBN',
+          'circulated_books.user_ID',
+          'circulated_books.created_at',
+          'circulated_books.updated_at',
+          'circulated_pictures.id as picture_id',
+          'circulated_pictures.path as picture_path',
+        )
+        .where('circulated_books.status', 'active')
+        .paginate(page, limit);
+
       return response.status(200).json({
         code: 200,
         status: "success",
         data: data
-      })
+      });
     } catch (error) {
       return response.status(500).json({
         code: 500,
         message: "fail",
         error: error
-      })
+      });
     }
   }
+
   public async activatedCirculatedBook({ params, response, auth }: HttpContext) {
     const { id } = params
 
