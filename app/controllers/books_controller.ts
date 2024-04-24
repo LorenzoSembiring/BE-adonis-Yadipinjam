@@ -180,9 +180,11 @@ export default class BooksController {
         for (const image of uploadImages) {
           await image.move(app.makePath('uploads'))
 
+          const pictureFileName = image.fileName;
+
           const picture = await CirculatedPicture.create({
             circulated_book_ID: data.id,
-            path: image.fileName,
+            path: pictureFileName,
           })
 
           uploadedPictures.push(picture)
@@ -241,7 +243,7 @@ export default class BooksController {
 
       )
       if (query) {
-        const data = query
+        const data = query[0]
 
         return response.status(200).json({
           code: 200,
@@ -320,7 +322,7 @@ export default class BooksController {
 
       )
       if (query) {
-        const data = query
+        const data = query[0]
 
         return response.status(200).json({
           code: 200,
