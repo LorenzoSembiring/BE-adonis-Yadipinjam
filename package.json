@@ -55,6 +55,7 @@
     "@adonisjs/cors": "^2.2.1",
     "@adonisjs/lucid": "^20.5.1",
     "@vinejs/vine": "^2.0.0",
+    "axios": "^1.6.8",
     "luxon": "^3.4.4",
     "mysql2": "^3.9.4",
     "reflect-metadata": "^0.2.2"

@@ -6,7 +6,10 @@ export default class CirculatedPicture extends BaseModel {
   declare id: number
 
   @column()
-  declare circulated_book_ID	: string
+  declare circulated_book_ID	: number
+
+  @column()
+  declare path	: string
 
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
