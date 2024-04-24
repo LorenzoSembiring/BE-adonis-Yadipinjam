@@ -6,13 +6,17 @@ import BookAuthor from '#models/book_author'
 import Publisher from '#models/publisher'
 import Author from '#models/author'
 import CirculatedBook from '#models/circulated_book'
-import PublishersController from '#controllers/publishers_controller'
-import AuthorsController from './authors_controller.js'
+
+import PublishersController from '#controllers/publishers_controller';
+import AuthorsController from './authors_controller.js';
+import CirculatedPicture from '#models/circulated_picture';
+import app from '@adonisjs/core/services/app';
 
 export default class BooksController {
+
   public async fetchGoogleAPI({ request, response }: HttpContext) {
     const { ISBN } = request.body()
-    const url = 'https://www.googleapis.com/books/v1/volumes?q=isbn:' + ISBN
+    const url = "https://www.googleapis.com/books/v1/volumes?q=isbn:" + ISBN
     try {
       const res = await axios.get(url)
 
@@ -72,21 +76,16 @@ export default class BooksController {
       return null
     }
   }
-
   //this code bellow will cretae book entity that acted as master data, it will called when someone uploading their book
-  public async createBook(
-    ISBN: string,
-    authors: string[],
-    publisher: string,
-    year: number,
-    title: string
-  ) {
+
+  public async createBook(ISBN: string, authors: string[], publisher: string, year: number, title: string, imagelink: string) {
     const publishersController = new PublishersController()
     const authorsController = new AuthorsController()
     // const { ISBN, authors, publisher, year, title} = request.body()
     const trx = await db.transaction()
 
-    const bookData = await Book.findBy('ISBN', ISBN)
+
+    const bookData = await Book.findBy("ISBN", ISBN)
     try {
       // retrieve publisher data based on name, create if not exist
       const publisherData = await Publisher.findBy('name', publisher)
@@ -104,6 +103,7 @@ export default class BooksController {
           title: title,
           publisher_ID: publisher_ID,
           year: year,
+          imagelink: imagelink
         })
       } else {
         return 'Book existed'
@@ -131,22 +131,39 @@ export default class BooksController {
       return null
     }
   }
+  public async fetchImage(ISBN: string) {
+    const url = "https://www.googleapis.com/books/v1/volumes?q=isbn:" + ISBN
+    try {
+      const res = await axios.get(url);
+      const imagelink = res.data.items[0].volumeInfo.imageLinks.thumbnail;
+      return imagelink
+
+    } catch (error) {
+      return null
+    }
+  }
+
   public async uploadBook({ request, response, auth }: HttpContext) {
+    
     const trx = await db.transaction()
 
     const { ISBN, authors, publisher, year, title, description, price } = request.body()
-
-    const authorArray: string[] = authors.split('?')
-
+    const authorArray: string[] = authors.split("?")
     const bookCheck = this.getBookByISBN(ISBN)
     const user = await auth.authenticate()
 
     try {
+      let imagelink = null;
+      const fetchImageResult = await this.fetchImage(ISBN);
+      if (fetchImageResult) {
+        imagelink = fetchImageResult;
+      }
       // if the book is exist, just create the circulated_book
       // if not, create book first
-      if (!(await bookCheck)) {
-        await this.createBook(ISBN, authorArray, publisher, year, title)
+      if (!await bookCheck) {
+        await this.createBook(ISBN, authorArray, publisher, year, title, imagelink)
       }
+
       const data = await CirculatedBook.create({
         description: description,
         price: price,
@@ -155,12 +172,36 @@ export default class BooksController {
         user_ID: user.id,
       })
 
-      await trx.commit()
-      return response.status(200).json({
-        code: 200,
-        status: 'success',
-        data: data,
-      })
+      const uploadImages = request.files('image')
+
+      if (uploadImages) {
+        const uploadedPictures = []
+
+        for (const image of uploadImages) {
+          await image.move(app.makePath('uploads'))
+
+          const picture = await CirculatedPicture.create({
+            circulated_book_ID: data.id,
+            path: image.fileName,
+          })
+
+          uploadedPictures.push(picture)
+        }
+
+        await trx.commit()
+
+        return response.status(200).json({
+          code: 200,
+          status: "success",
+          data: data,
+          pictures: uploadedPictures
+        })
+      } else {
+        return response.status(400).json({
+          code: 400,
+          status: "not found",
+        })
+      }
     } catch (error) {
       await trx.rollback()
       return response.status(500).json({
@@ -190,23 +231,38 @@ export default class BooksController {
 
   public async circulatedBookIndex({ request, response }: HttpContext) {
     try {
-      const page = request.input('page', 1)
-      const limit = request.input('limit', 10)
+      const page = request.input('page', 1);
+      const limit = request.input('limit', 10);
 
-      const data = await db.from('circulated_books').paginate(page, limit)
+      const data = await db
+        .from('circulated_books')
+        .leftJoin('circulated_pictures', 'circulated_books.id', 'circulated_pictures.circulated_book_ID')
+        .select(
+          'circulated_books.id as book_id',
+          'circulated_books.description',
+          'circulated_books.price',
+          'circulated_books.books_ISBN',
+          'circulated_books.user_ID',
+          'circulated_pictures.id as picture_id',
+          'circulated_pictures.path as picture_path',
+        )
+        .where('circulated_books.status', 'active')
+        .paginate(page, limit);
+
       return response.status(200).json({
         code: 200,
-        status: 'success',
-        data: data,
-      })
+        status: "success",
+        data: data
+      });
     } catch (error) {
       return response.status(500).json({
         code: 500,
-        message: 'fail',
-        error: error,
-      })
+        message: "fail",
+        error: error
+      });
     }
   }
+
   public async activatedCirculatedBook({ params, response, auth }: HttpContext) {
     const { id } = params
 
@@ -277,4 +333,5 @@ export default class BooksController {
       })
     }
   }
+
 }
