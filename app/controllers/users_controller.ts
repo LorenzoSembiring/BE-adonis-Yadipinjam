@@ -93,6 +93,27 @@ export default class UsersController {
       })
     }
   }
+  public async logout({ auth, response }: HttpContext){
+    try {
+      const user = await auth.authenticate()
+
+      const token = user.currentAccessToken
+      console.log(token)
+      const logout = await User.accessTokens.delete(user, token.identifier)
+
+      return response.status(200).json({
+        code: 200,
+        status: "success",
+
+      })
+    } catch (error) {
+      return response.status(500).json({
+        code: 500,
+        message: "fail",
+        error: error
+      })
+    }
+  }
 }
 
 enum role {
