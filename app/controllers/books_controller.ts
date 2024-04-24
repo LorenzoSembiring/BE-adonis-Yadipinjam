@@ -1,11 +1,12 @@
 import type { HttpContext } from '@adonisjs/core/http'
-import axios from 'axios';
+import axios from 'axios'
 import db from '@adonisjs/lucid/services/db'
 import Book from '#models/book'
 import BookAuthor from '#models/book_author'
-import Publisher from '#models/publisher';
+import Publisher from '#models/publisher'
 import Author from '#models/author'
 import CirculatedBook from '#models/circulated_book'
+
 import PublishersController from '#controllers/publishers_controller';
 import AuthorsController from './authors_controller.js';
 import CirculatedPicture from '#models/circulated_picture';
@@ -17,7 +18,7 @@ export default class BooksController {
     const { ISBN } = request.body()
     const url = "https://www.googleapis.com/books/v1/volumes?q=isbn:" + ISBN
     try {
-      const res = await axios.get(url);
+      const res = await axios.get(url)
 
       if (res.data.totalItems > 0) {
         const title: string = res.data.items[0].volumeInfo.title
@@ -34,19 +35,19 @@ export default class BooksController {
 
         return response.status(200).json({
           code: 200,
-          message: "success",
-          data: data
+          message: 'success',
+          data: data,
         })
       } else {
         return response.status(200).json({
           code: 200,
-          message: "not found"
+          message: 'not found',
         })
       }
     } catch (error) {
       return response.status(500).json({
         code: 500,
-        error: error.message
+        error: error.message,
       })
     }
   }
@@ -55,7 +56,7 @@ export default class BooksController {
     try {
       const data = await BookAuthor.create({
         author_ID: author_ID,
-        books_ISBN: ISBN
+        books_ISBN: ISBN,
       })
       return data
     } catch (error) {
@@ -76,16 +77,18 @@ export default class BooksController {
     }
   }
   //this code bellow will cretae book entity that acted as master data, it will called when someone uploading their book
+
   public async createBook(ISBN: string, authors: string[], publisher: string, year: number, title: string, imagelink: string) {
     const publishersController = new PublishersController()
     const authorsController = new AuthorsController()
     // const { ISBN, authors, publisher, year, title} = request.body()
     const trx = await db.transaction()
 
+
     const bookData = await Book.findBy("ISBN", ISBN)
     try {
       // retrieve publisher data based on name, create if not exist
-      const publisherData = await Publisher.findBy('name', publisher);
+      const publisherData = await Publisher.findBy('name', publisher)
 
       if (publisherData) {
         var publisher_ID: number | null = publisherData.id
@@ -101,16 +104,15 @@ export default class BooksController {
           publisher_ID: publisher_ID,
           year: year,
           imagelink: imagelink
-
         })
       } else {
-        return "Book existed"
+        return 'Book existed'
       }
 
       // retrieve author data based on name, create if not exist
       // create bookAuthor after author exist
       for (let index = 0; index < authors.length; index++) {
-        const authorData = await Author.findBy('name', authors[index]);
+        const authorData = await Author.findBy('name', authors[index])
         if (authorData) {
           var author_ID: number | null = authorData.id
         } else {
@@ -142,7 +144,7 @@ export default class BooksController {
   }
 
   public async uploadBook({ request, response, auth }: HttpContext) {
-
+    
     const trx = await db.transaction()
 
     const { ISBN, authors, publisher, year, title, description, price } = request.body()
@@ -165,9 +167,9 @@ export default class BooksController {
       const data = await CirculatedBook.create({
         description: description,
         price: price,
-        status: "inactive",
+        status: 'inactive',
         books_ISBN: ISBN,
-        user_ID: user.id
+        user_ID: user.id,
       })
 
       const uploadImages = request.files('image')
@@ -204,27 +206,25 @@ export default class BooksController {
       await trx.rollback()
       return response.status(500).json({
         code: 500,
-        message: "fail",
-        error: error
+        message: 'fail',
+        error: error,
       })
     }
   }
-
-
   public async bookIndex({ request, response }: HttpContext) {
     try {
       const page = request.qs()
       const data = await db.from('books').paginate(page.page, page.limit)
       return response.status(200).json({
         code: 200,
-        status: "success",
-        data: data
+        status: 'success',
+        data: data,
       })
     } catch (error) {
       return response.status(500).json({
         code: 500,
-        message: "fail",
-        error: error
+        message: 'fail',
+        error: error,
       })
     }
   }
@@ -274,22 +274,22 @@ export default class BooksController {
       if (!circulatedBook) {
         return response.status(404).json({
           code: 404,
-          message: 'not found'
+          message: 'not found',
         })
       }
 
       if (!user) {
         return response.status(401).json({
           code: 401,
-          status: "unauthorized",
-          data: user
+          status: 'unauthorized',
+          data: user,
         })
       }
 
       if (circulatedBook['$extras']['user_ID'] != user.id) {
         return response.status(403).json({
           code: 403,
-          status: "forbidden",
+          status: 'forbidden',
         })
       }
 
@@ -300,12 +300,36 @@ export default class BooksController {
       return response.status(200).json({
         code: 200,
         message: 'success',
-        data: circulatedBook
+        data: circulatedBook,
       })
     } catch (error) {
       return response.status(500).json({
         code: 500,
-        error: error.message
+        error: error.message,
+      })
+    }
+  }
+
+  public async circBook({ response, auth }: HttpContext) {
+    const user_ID = auth.authenticate()
+    try {
+      const data = await CirculatedBook.findBy('user_ID', (await user_ID).id)
+      if (data) {
+        return response.status(200).json({
+          code: 500,
+          data: data,
+        })
+      } else {
+        return response.status(404).json({
+          code: 404,
+          status: 'not found',
+          data: data,
+        })
+      }
+    } catch (error) {
+      return response.status(500).json({
+        code: 500,
+        error: error,
       })
     }
   }
