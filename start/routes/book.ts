@@ -9,5 +9,6 @@ router
     router.post('/book/circulated', [BooksController, 'circulatedBookIndex'])
     router.get('/book/circulated/activated/:id', [BooksController, 'activatedCirculatedBook'])
     router.get('/book/circulatedBook', [BooksController, 'circBook'])
+    router.get('/book/circulated/detail', [BooksController, 'detailCirculatedBook'])
   })
   .prefix('/api')
