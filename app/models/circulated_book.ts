@@ -25,4 +25,5 @@ export default class CirculatedBook extends BaseModel {
 
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   declare updatedAt: DateTime
+  // static id: string | undefined
 }
