@@ -144,7 +144,7 @@ export default class BooksController {
   }
 
   public async uploadBook({ request, response, auth }: HttpContext) {
-    
+
     const trx = await db.transaction()
 
     const { ISBN, authors, publisher, year, title, description, price } = request.body()
@@ -229,40 +229,39 @@ export default class BooksController {
     }
   }
 
-  public async circulatedBookIndex({ request, response }: HttpContext) {
+  public async circulatedBookIndex({ response, request }: HttpContext) {
+    const { ISBN } = request.body()
+    console.log(ISBN)
     try {
-      const page = request.input('page', 1);
-      const limit = request.input('limit', 10);
+      const query = await db.rawQuery(
+        "SELECT cb.id AS circulated_book_id, b.ISBN, b.title AS book_title, GROUP_CONCAT(a.name SEPARATOR ', ') AS authors, p.name AS publisher, cb.description, cp.path AS image_link, u.username AS uploader_name FROM circulated_books cb JOIN books b ON cb.books_ISBN = b.ISBN JOIN book_authors ba ON b.ISBN = ba.books_ISBN JOIN authors a ON ba.author_ID = a.id JOIN publishers p ON b.publisher_ID = p.id LEFT JOIN circulated_pictures cp ON cb.id = cp.circulated_book_ID JOIN users u ON cb.user_ID = u.id WHERE cb.status = 'active' AND b.ISBN = :isbn GROUP BY cb.id, b.ISBN;",
+        { 
+          isbn: ISBN
+        }
 
-      const data = await db
-        .from('circulated_books')
-        .leftJoin('circulated_pictures', 'circulated_books.id', 'circulated_pictures.circulated_book_ID')
-        .select(
-          'circulated_books.id as book_id',
-          'circulated_books.description',
-          'circulated_books.price',
-          'circulated_books.books_ISBN',
-          'circulated_books.user_ID',
-          'circulated_pictures.id as picture_id',
-          'circulated_pictures.path as picture_path',
-        )
-        .where('circulated_books.status', 'active')
-        .paginate(page, limit);
+      )
+      if (query) {
+        const data = query
 
-      return response.status(200).json({
-        code: 200,
-        status: "success",
-        data: data
-      });
+        return response.status(200).json({
+          code: 200,
+          status: "success",
+          data: data
+        })
+      } else {
+        return response.status(404).json({
+          code: 404,
+          status: 'not found',
+          data: [],
+        });
+      }
     } catch (error) {
       return response.status(500).json({
         code: 500,
-        message: "fail",
-        error: error
+        error: error.message,
       });
     }
   }
-
   public async activatedCirculatedBook({ params, response, auth }: HttpContext) {
     const { id } = params
 
@@ -309,29 +308,37 @@ export default class BooksController {
       })
     }
   }
+  public async circBook({ auth, response }: HttpContext) {
+    const user = await auth.authenticate()
 
-  public async circBook({ response, auth }: HttpContext) {
-    const user_ID = auth.authenticate()
     try {
-      const data = await CirculatedBook.findBy('user_ID', (await user_ID).id)
-      if (data) {
+      const query = await db.rawQuery(
+        "SELECT cb.id AS circulated_book_id, b.ISBN, b.title AS book_title, GROUP_CONCAT(a.name SEPARATOR ', ') AS authors, p.name AS publisher, cb.description, cp.path AS image_link FROM circulated_books cb JOIN books b ON cb.books_ISBN = b.ISBN JOIN book_authors ba ON b.ISBN = ba.books_ISBN JOIN authors a ON ba.author_ID = a.id JOIN publishers p ON b.publisher_ID = p.id LEFT JOIN circulated_pictures cp ON cb.id = cp.circulated_book_ID JOIN users u ON cb.user_ID = u.id WHERE u.id = :id GROUP BY cb.id, b.ISBN;",
+        { 
+          id: user.id
+        }
+
+      )
+      if (query) {
+        const data = query
+
         return response.status(200).json({
-          code: 500,
-          data: data,
+          code: 200,
+          status: "success",
+          data: data
         })
       } else {
         return response.status(404).json({
           code: 404,
           status: 'not found',
-          data: data,
-        })
+          data: [],
+        });
       }
     } catch (error) {
       return response.status(500).json({
         code: 500,
-        error: error,
-      })
+        error: error.message,
+      });
     }
   }
-
 }

@@ -6,7 +6,7 @@ router
     router.post('/fetch-book', [BooksController, 'fetchGoogleAPI'])
     router.post('/book/upload', [BooksController, 'uploadBook'])
     router.get('/book', [BooksController, 'bookIndex'])
-    router.get('/book/circulated', [BooksController, 'circulatedBookIndex'])
+    router.post('/book/circulated', [BooksController, 'circulatedBookIndex'])
     router.get('/book/circulated/activated/:id', [BooksController, 'activatedCirculatedBook'])
     router.get('/book/circulatedBook', [BooksController, 'circBook'])
   })
