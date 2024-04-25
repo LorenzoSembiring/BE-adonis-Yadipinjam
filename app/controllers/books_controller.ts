@@ -222,7 +222,7 @@ export default class BooksController {
       return response.status(200).json({
         code: 200,
         status: 'success',
-        data: data,
+        data: data[0],
       })
     } catch (error) {
       return response.status(500).json({
