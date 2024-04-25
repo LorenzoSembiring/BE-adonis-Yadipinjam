@@ -213,10 +213,12 @@ export default class BooksController {
       })
     }
   }
-  public async bookIndex({ request, response }: HttpContext) {
+  public async bookIndex({ response }: HttpContext) {
     try {
-      const page = request.qs()
-      const data = await db.from('books').paginate(page.page, page.limit)
+      const data = await db.rawQuery
+        (
+        "SELECT DISTINCT b.* FROM books b JOIN circulated_books cb ON cb.books_ISBN = b.ISBN WHERE cb.status = 'active' LIMIT 10 OFFSET 1;"
+        ) 
       return response.status(200).json({
         code: 200,
         status: 'success',
