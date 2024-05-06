@@ -7,16 +7,15 @@ import Publisher from '#models/publisher'
 import Author from '#models/author'
 import CirculatedBook from '#models/circulated_book'
 
-import PublishersController from '#controllers/publishers_controller';
-import AuthorsController from './authors_controller.js';
-import CirculatedPicture from '#models/circulated_picture';
-import app from '@adonisjs/core/services/app';
+import PublishersController from '#controllers/publishers_controller'
+import AuthorsController from './authors_controller.js'
+import CirculatedPicture from '#models/circulated_picture'
+import app from '@adonisjs/core/services/app'
 
 export default class BooksController {
-
   public async fetchGoogleAPI({ request, response }: HttpContext) {
     const { ISBN } = request.body()
-    const url = "https://www.googleapis.com/books/v1/volumes?q=isbn:" + ISBN
+    const url = 'https://www.googleapis.com/books/v1/volumes?q=isbn:' + ISBN
     try {
       const res = await axios.get(url)
 
@@ -78,14 +77,20 @@ export default class BooksController {
   }
   //this code bellow will cretae book entity that acted as master data, it will called when someone uploading their book
 
-  public async createBook(ISBN: string, authors: string[], publisher: string, year: number, title: string, imagelink: string) {
+  public async createBook(
+    ISBN: string,
+    authors: string[],
+    publisher: string,
+    year: number,
+    title: string,
+    imagelink: string
+  ) {
     const publishersController = new PublishersController()
     const authorsController = new AuthorsController()
     // const { ISBN, authors, publisher, year, title} = request.body()
     const trx = await db.transaction()
 
-
-    const bookData = await Book.findBy("ISBN", ISBN)
+    const bookData = await Book.findBy('ISBN', ISBN)
     try {
       // retrieve publisher data based on name, create if not exist
       const publisherData = await Publisher.findBy('name', publisher)
@@ -103,7 +108,7 @@ export default class BooksController {
           title: title,
           publisher_ID: publisher_ID,
           year: year,
-          imagelink: imagelink
+          imagelink: imagelink,
         })
       } else {
         return 'Book existed'
@@ -132,35 +137,33 @@ export default class BooksController {
     }
   }
   public async fetchImage(ISBN: string) {
-    const url = "https://www.googleapis.com/books/v1/volumes?q=isbn:" + ISBN
+    const url = 'https://www.googleapis.com/books/v1/volumes?q=isbn:' + ISBN
     try {
-      const res = await axios.get(url);
-      const imagelink = res.data.items[0].volumeInfo.imageLinks.thumbnail;
+      const res = await axios.get(url)
+      const imagelink = res.data.items[0].volumeInfo.imageLinks.thumbnail
       return imagelink
-
     } catch (error) {
       return null
     }
   }
 
   public async uploadBook({ request, response, auth }: HttpContext) {
-
     const trx = await db.transaction()
 
     const { ISBN, authors, publisher, year, title, description, price } = request.body()
-    const authorArray: string[] = authors.split("?")
+    const authorArray: string[] = authors.split('?')
     const bookCheck = this.getBookByISBN(ISBN)
     const user = await auth.authenticate()
 
     try {
-      let imagelink = null;
-      const fetchImageResult = await this.fetchImage(ISBN);
+      let imagelink = null
+      const fetchImageResult = await this.fetchImage(ISBN)
       if (fetchImageResult) {
-        imagelink = fetchImageResult;
+        imagelink = fetchImageResult
       }
       // if the book is exist, just create the circulated_book
       // if not, create book first
-      if (!await bookCheck) {
+      if (!(await bookCheck)) {
         await this.createBook(ISBN, authorArray, publisher, year, title, imagelink)
       }
 
@@ -180,7 +183,7 @@ export default class BooksController {
         for (const image of uploadImages) {
           await image.move(app.makePath('uploads'))
 
-          const pictureFileName = image.fileName;
+          const pictureFileName = image.fileName
 
           const picture = await CirculatedPicture.create({
             circulated_book_ID: data.id,
@@ -194,14 +197,14 @@ export default class BooksController {
 
         return response.status(200).json({
           code: 200,
-          status: "success",
+          status: 'success',
           data: data,
-          pictures: uploadedPictures
+          pictures: uploadedPictures,
         })
       } else {
         return response.status(400).json({
           code: 400,
-          status: "not found",
+          status: 'not found',
         })
       }
     } catch (error) {
@@ -213,17 +216,33 @@ export default class BooksController {
       })
     }
   }
-  public async bookIndex({ response }: HttpContext) {
+  public async bookIndex({ response, auth }: HttpContext) {
+    const user = await auth.authenticate()
     try {
-      const data = await db.rawQuery
-        (
-        "SELECT DISTINCT b.* FROM books b JOIN circulated_books cb ON cb.books_ISBN = b.ISBN WHERE cb.status = 'active' LIMIT 10 OFFSET 1;"
-        ) 
-      return response.status(200).json({
-        code: 200,
-        status: 'success',
-        data: data[0],
-      })
+      console.log(user.id)
+      if (user) {
+        var data = await db.rawQuery(
+          "SELECT DISTINCT b.* FROM `circulated_books` AS cb JOIN `users` AS u ON cb.user_ID = u.id JOIN `books` AS b ON cb.books_ISBN = b.ISBN WHERE u.id != :user OR cb.status = 'active' LIMIT 10 OFFSET 1;",
+          {
+            user: user.id,
+          }
+        )
+        return response.status(200).json({
+          code: 200,
+          status: 'success',
+          data: data[0],
+        })
+      } else {
+        var data = await db.rawQuery(
+          "SELECT DISTINCT b.* FROM books b JOIN circulated_books cb ON cb.books_ISBN = b.ISBN WHERE cb.status = 'active' LIMIT 10 OFFSET 1;"
+        )
+        console.log('data')
+        return response.status(200).json({
+          code: 200,
+          status: 'success',
+          data: data[0],
+        })
+      }
     } catch (error) {
       return response.status(500).json({
         code: 500,
@@ -239,30 +258,29 @@ export default class BooksController {
       const query = await db.rawQuery(
         "SELECT cb.id AS circulated_book_id, b.ISBN, b.title AS book_title, GROUP_CONCAT(a.name SEPARATOR ', ') AS authors, p.name AS publisher, cb.description, cp.path AS image_link, u.username AS uploader_name FROM circulated_books cb JOIN books b ON cb.books_ISBN = b.ISBN JOIN book_authors ba ON b.ISBN = ba.books_ISBN JOIN authors a ON ba.author_ID = a.id JOIN publishers p ON b.publisher_ID = p.id LEFT JOIN circulated_pictures cp ON cb.id = cp.circulated_book_ID JOIN users u ON cb.user_ID = u.id WHERE cb.status = 'active' AND b.ISBN = :isbn GROUP BY cb.id, b.ISBN;",
         {
-          isbn: ISBN
+          isbn: ISBN,
         }
-
       )
       if (query) {
         const data = query[0]
 
         return response.status(200).json({
           code: 200,
-          status: "success",
-          data: data
+          status: 'success',
+          data: data,
         })
       } else {
         return response.status(404).json({
           code: 404,
           status: 'not found',
           data: [],
-        });
+        })
       }
     } catch (error) {
       return response.status(500).json({
         code: 500,
         error: error.message,
-      });
+      })
     }
   }
   public async activatedCirculatedBook({ params, response, auth }: HttpContext) {
@@ -318,62 +336,60 @@ export default class BooksController {
       const query = await db.rawQuery(
         "SELECT cb.id AS circulated_book_id, b.ISBN, b.title AS book_title, GROUP_CONCAT(DISTINCT a.name SEPARATOR ', ') AS authors, p.name AS publisher, cb.description, cp.path AS image_link, cb.status AS status FROM circulated_books cb JOIN books b ON cb.books_ISBN = b.ISBN JOIN book_authors ba ON b.ISBN = ba.books_ISBN JOIN authors a ON ba.author_ID = a.id JOIN publishers p ON b.publisher_ID = p.id LEFT JOIN circulated_pictures cp ON cb.id = cp.circulated_book_ID JOIN users u ON cb.user_ID = u.id WHERE u.id = :id GROUP BY cb.id, b.ISBN;",
         {
-          id: user.id
+          id: user.id,
         }
-
       )
       if (query) {
         const data = query[0]
 
         return response.status(200).json({
           code: 200,
-          status: "success",
-          data: data
+          status: 'success',
+          data: data,
         })
       } else {
         return response.status(404).json({
           code: 404,
           status: 'not found',
           data: [],
-        });
+        })
       }
     } catch (error) {
       return response.status(500).json({
         code: 500,
         error: error.message,
-      });
+      })
     }
   }
-  public async detailCirculatedBook({ request, response }: HttpContext){
+  public async detailCirculatedBook({ request, response }: HttpContext) {
     const { circulated_ID } = request.body()
     try {
       const query = await db.rawQuery(
         "SELECT cb.id AS circulated_book_id, b.ISBN, b.title AS book_title, GROUP_CONCAT(a.name SEPARATOR ', ') AS authors, p.name AS publisher, cb.description, cp.path AS image_link, u.username AS uploader_name FROM circulated_books cb JOIN books b ON cb.books_ISBN = b.ISBN JOIN book_authors ba ON b.ISBN = ba.books_ISBN JOIN authors a ON ba.author_ID = a.id JOIN publishers p ON b.publisher_ID = p.id LEFT JOIN circulated_pictures cp ON cb.id = cp.circulated_book_ID JOIN users u ON cb.user_ID = u.id WHERE cb.id = :id;",
         {
-          id: parseInt(circulated_ID)
+          id: parseInt(circulated_ID),
         }
-
       )
       if (query) {
         const data = query[0]
 
         return response.status(200).json({
           code: 200,
-          status: "success",
-          data: data
+          status: 'success',
+          data: data,
         })
       } else {
         return response.status(404).json({
           code: 404,
           status: 'not found',
           data: [],
-        });
+        })
       }
     } catch (error) {
       return response.status(500).json({
         code: 500,
         error: error.message,
-      });
+      })
     }
   }
 }
