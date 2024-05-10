@@ -15,6 +15,9 @@ export default class CirculatedBook extends BaseModel {
   declare status: string
 
   @column()
+  declare verified: string
+
+  @column()
   declare books_ISBN: string
 
   @column()

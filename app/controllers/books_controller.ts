@@ -11,6 +11,8 @@ import PublishersController from '#controllers/publishers_controller'
 import AuthorsController from './authors_controller.js'
 import CirculatedPicture from '#models/circulated_picture'
 import app from '@adonisjs/core/services/app'
+import { error } from 'console'
+import { messages } from '@vinejs/vine/defaults'
 
 export default class BooksController {
   public async fetchGoogleAPI({ request, response }: HttpContext) {
@@ -385,6 +387,45 @@ export default class BooksController {
           data: [],
         })
       }
+    } catch (error) {
+      return response.status(500).json({
+        code: 500,
+        error: error.message,
+      })
+    }
+  }
+
+  public async verifyCircBook({ auth, params, response }: HttpContext) {
+    const user = await auth.authenticate()
+    try {
+      // Pastikan user yang sedang melakukan verifikasi memiliki role sebagai admin
+      if (user.role != 'admin') {
+        return response.status(404).json({
+          code: 404,
+          status: 'anda bukan admin',
+          data: user,
+        })
+      }
+
+      // temukan circBook berdasarkan id
+      const verifCircBook = await CirculatedBook.find(params.id)
+
+      // cek apakah circBook ada atau tidak
+      if (!verifCircBook) {
+        return response.status(404).json({
+          message: 'Not Found',
+        })
+      }
+
+      // verified circBook
+      verifCircBook.verified = 'verified'
+      await verifCircBook.save()
+
+      return response.status(200).json({
+        code: 200,
+        message: 'success',
+        data: verifCircBook,
+      })
     } catch (error) {
       return response.status(500).json({
         code: 500,
