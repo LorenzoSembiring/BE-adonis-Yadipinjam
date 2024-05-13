@@ -11,8 +11,6 @@ import PublishersController from '#controllers/publishers_controller'
 import AuthorsController from './authors_controller.js'
 import CirculatedPicture from '#models/circulated_picture'
 import app from '@adonisjs/core/services/app'
-import { error } from 'console'
-import { messages } from '@vinejs/vine/defaults'
 
 export default class BooksController {
   public async fetchGoogleAPI({ request, response }: HttpContext) {
@@ -173,6 +171,7 @@ export default class BooksController {
         description: description,
         price: price,
         status: 'inactive',
+        verified: 'unverified',
         books_ISBN: ISBN,
         user_ID: user.id,
       })
