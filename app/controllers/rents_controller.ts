@@ -106,7 +106,7 @@ export default class RentsController {
       }
 
       // Mengubah status sewa menjadi "returned"
-      rent.status = "returned";
+      rent.status = "complete";
       await rent.save()
 
       return response.status(200).json({
@@ -136,7 +136,7 @@ export default class RentsController {
           message: "Rent not found!"
         });
       }
-      // Mengecek apakah pengguna yang meminta konfirmasi adalah pemilik buku
+      
       const circulatedBook = rent['$extras']['Circulated_BookID'];
       if (!circulatedBook) {
         return response.status(404).json({
@@ -155,7 +155,6 @@ export default class RentsController {
         });
       }
 
-      // Mengubah status sewa menjadi "returned"
       rent.status = "confirmed";
       await rent.save()
 
