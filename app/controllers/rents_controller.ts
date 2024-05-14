@@ -172,4 +172,28 @@ export default class RentsController {
       });
     }
   }
+  public async renterStatus({ request, response, auth }: HttpContext) {
+    const type = request.param('type')
+    const user = await auth.authenticate()
+    try {
+      const data = await db.rawQuery(
+        'SELECT * FROM `rents` WHERE status = :status AND userID = :user;',
+        {
+          status: type,
+          user: user.id
+        }
+      );
+      return response.status(200).json({
+        code: 200,
+        message: "success",
+        data: data[0]
+      });
+    } catch (error) {
+      return response.status(500).json({
+        code: 500,
+        message: "fail",
+        error: error.message
+      });
+    }
+  }
 }
