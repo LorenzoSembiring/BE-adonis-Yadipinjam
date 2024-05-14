@@ -22,7 +22,7 @@ export default class RentsController {
       }
 
       // check if the borrower is not the owner of the book
-      const user_ID = circulatedBook['$extras']['user_ID']
+      const user_ID = circulatedBook.$extras.user_ID
       if (user.id == user_ID) {
         return response.status(403).json({
           code: 403,
@@ -39,8 +39,7 @@ export default class RentsController {
           circulated_ID: circulated_ID
         }
       );
-
-      if (existingRent && existingRent.length > 0) {
+      if (existingRent) {
         return response.status(403).json({
           code: 403,
           status: "Forbidden",
@@ -74,6 +73,114 @@ export default class RentsController {
   }
 
   public async confirmReturn({ request, response, auth }: HttpContext) {
+    try {
+      const user = await auth.authenticate()
+      const { rent_ID } = request.body()
+      const rent = await Rent.find(rent_ID)
+
+      if (!rent) {
+        return response.status(404).json({
+          code: 404,
+          status: "not found",
+          message: "Rent not found!"
+        })
+      }
+
+      // Mengecek apakah pengguna yang meminta konfirmasi adalah pemilik buku
+      const circulatedBookID = rent.$extras.Circulated_BookID
+      if (!circulatedBookID) {
+        return response.status(404).json({
+          code: 404,
+          status: "not found",
+          message: "Circulated book not found!"
+        })
+      }
+
+      const circulatedBook = await CirculatedBook.find(circulatedBookID)
+      if (!circulatedBook) {
+        return response.status(404).json({
+          code: 404,
+          status: "not found",
+          message: "Circulated book details not found!"
+        })
+      }
+
+      const user_ID = circulatedBook.$extras.user_ID
+      if (user.id !== user_ID) {
+        return response.status(403).json({
+          code: 403,
+          status: "Forbidden",
+          message: "You are not authorized to confirm return for this book"
+        })
+      }
+
+      rent.status = "complete"
+      await rent.save()
+
+      return response.status(200).json({
+        code: 200,
+        status: "success",
+        message: "Book return confirmed"
+      })
+    } catch (error) {
+      return response.status(500).json({
+        code: 500,
+        status: "fail",
+        message: error.message
+      })
+    }
+  }
+
+
+  public async confirmBorrow({ request, response, auth }: HttpContext) {
+    const user = await auth.authenticate()
+    const { rent_ID } = request.body()
+    const rent = await Rent.find(rent_ID)
+
+    try {
+      if (!rent) {
+        return response.status(404).json({
+          code: 404,
+          status: "not found",
+          message: "Rent not found!"
+        });
+      }
+
+      const circulatedBook = rent.$extras.Circulated_BookID
+      if (!circulatedBook) {
+        return response.status(404).json({
+          code: 404,
+          status: "not found",
+          message: "Circulated book not found!"
+        });
+      }
+      const user_ID = rent.$extras.user_ID
+      if (user.id !== user_ID) {
+        return response.status(403).json({
+          code: 403,
+          status: "Forbidden",
+          message: "You are not authorized to confirm rent for this book"
+        });
+      }
+
+      rent.status = "confirmed";
+      await rent.save()
+
+      return response.status(200).json({
+        code: 200,
+        status: "success",
+        message: "Book rent confirmed"
+      });
+    } catch (error) {
+      return response.status(500).json({
+        code: 500,
+        message: "fail",
+        error: error.message
+      });
+    }
+  }
+
+  public async returnBook({ request, response, auth }: HttpContext) {
     const user = await auth.authenticate()
     const { rent_ID } = request.body()
     const rent = await Rent.find(rent_ID)
@@ -87,7 +194,7 @@ export default class RentsController {
         });
       }
       // Mengecek apakah pengguna yang meminta konfirmasi adalah pemilik buku
-      const circulatedBook = rent['$extras']['Circulated_BookID'];
+      const circulatedBook = rent.$extras.Circulated_BookID
       if (!circulatedBook) {
         return response.status(404).json({
           code: 404,
@@ -95,8 +202,7 @@ export default class RentsController {
           message: "Circulated book not found!"
         });
       }
-      const user_ID = rent['$extras']['userID']
-      console.log(user_ID, user.id);
+      const user_ID = rent.$extras.user_ID
       if (user.id !== user_ID) {
         return response.status(403).json({
           code: 403,
@@ -112,57 +218,7 @@ export default class RentsController {
       return response.status(200).json({
         code: 200,
         status: "success",
-        message: "Book return confirmed"
-      });
-    } catch (error) {
-      return response.status(500).json({
-        code: 500,
-        message: "fail",
-        error: error.message
-      });
-    }
-  }
-
-  public async confirmBorrow({ request, response, auth }: HttpContext) {
-    const user = await auth.authenticate()
-    const { rent_ID } = request.body()
-    const rent = await Rent.find(rent_ID)
-
-    try {
-      if (!rent) {
-        return response.status(404).json({
-          code: 404,
-          status: "not found",
-          message: "Rent not found!"
-        });
-      }
-      // Mengecek apakah pengguna yang meminta konfirmasi adalah pemilik buku
-      const circulatedBook = rent['$extras']['Circulated_BookID'];
-      if (!circulatedBook) {
-        return response.status(404).json({
-          code: 404,
-          status: "not found",
-          message: "Circulated book not found!"
-        });
-      }
-      const user_ID = rent['$extras']['userID']
-      console.log(user_ID, user.id);
-      if (user.id !== user_ID) {
-        return response.status(403).json({
-          code: 403,
-          status: "Forbidden",
-          message: "You are not authorized to confirm rent for this book"
-        });
-      }
-
-      // Mengubah status sewa menjadi "returned"
-      rent.status = "confirmed";
-      await rent.save()
-
-      return response.status(200).json({
-        code: 200,
-        status: "success",
-        message: "Book rent confirmed"
+        message: "Book has been returned"
       });
     } catch (error) {
       return response.status(500).json({
