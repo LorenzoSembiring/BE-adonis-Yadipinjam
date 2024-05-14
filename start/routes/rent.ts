@@ -3,6 +3,7 @@ import RentsController from '#controllers/rents_controller'
 
 router.group(() => {
   router.post('/borrow',[RentsController, 'borrow'])
-  router.post('/confirm',[RentsController, 'confirmBorrow'])
-  router.post('/return',[RentsController, 'confirmReturn'])
+  router.post('/return',[RentsController, 'returnBook'])
+  router.post('/confirmBorrow',[RentsController, 'confirmBorrow'])
+  router.post('/confirmReturn',[RentsController, 'confirmReturn'])
 }).prefix('/api/rent')
