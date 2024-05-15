@@ -155,7 +155,7 @@ export default class RentsController {
           message: "Circulated book not found!"
         });
       }
-      const user_ID = rent.$extras.userID
+      
       const idBuku = await CirculatedBook.find(circulatedBook)
       const user_ID = idBuku?.$extras.user_ID
       console.log(idBuku)
