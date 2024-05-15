@@ -39,13 +39,13 @@ export default class RentsController {
           circulated_ID: circulated_ID
         }
       );
-      if (existingRent) {
-        return response.status(403).json({
-          code: 403,
-          status: "Forbidden",
-          message: "You already rent this book"
-        });
-      }
+      // if (existingRent) {
+      //   return response.status(403).json({
+      //     code: 403,
+      //     status: "Forbidden",
+      //     message: "You already rent this book"
+      //   });
+      // }
 
       const data = await db.rawQuery(
         'INSERT INTO rents (userID, Circulated_BookID, status, start_date, end_date) VALUES (:user,:circulated_ID,:status,:start_date,:end_date);',
