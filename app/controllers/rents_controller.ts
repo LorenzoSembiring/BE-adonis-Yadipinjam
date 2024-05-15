@@ -155,17 +155,17 @@ export default class RentsController {
           message: "Circulated book not found!"
         });
       }
-      // const user_ID = rent.$extras.userID
-      // const idBuku = await CirculatedBook.find(circulatedBook)
-      // const user_ID = idBuku?.$extras.user_ID
-      // console.log(idBuku)
-      // if (user.id !== user_ID) {
-      //   return response.status(403).json({
-      //     code: 403,
-      //     status: "Forbidden",
-      //     message: "You are not authorized to confirm rent for this book"
-      //   });
-      // }
+      const user_ID = rent.$extras.userID
+      const idBuku = await CirculatedBook.find(circulatedBook)
+      const user_ID = idBuku?.$extras.user_ID
+      console.log(idBuku)
+      if (user.id !== user_ID) {
+        return response.status(403).json({
+          code: 403,
+          status: "Forbidden",
+          message: "You are not authorized to confirm rent for this book"
+        });
+      }
 
       rent.status = "confirmed";
       await rent.save()
@@ -275,7 +275,7 @@ export default class RentsController {
   public async confirmOwner({ response, auth }: HttpContext) {
     const user = await auth.authenticate();
     try {
-      const data = await db.rawQuery(`SELECT cb.id, b.title, b.ISBN, u.username as peminjam, r.status, r.start_date as tanggal_mulai, r.end_date as tanggal_selesai FROM rents r LEFT JOIN circulated_books cb ON cb.id = r.Circulated_BookID LEFT JOIN books b ON cb.books_ISBN = b.ISBN LEFT JOIN users u ON u.id = r.userID WHERE cb.user_ID = :ownerId AND (r.status = 'pending' OR r.status = 'returned');`,
+      const data = await db.rawQuery(`SELECT r.id, b.title, b.ISBN, u.username as peminjam, r.status, r.start_date as tanggal_mulai, r.end_date as tanggal_selesai FROM rents r LEFT JOIN circulated_books cb ON cb.id = r.Circulated_BookID LEFT JOIN books b ON cb.books_ISBN = b.ISBN LEFT JOIN users u ON u.id = r.userID WHERE cb.user_ID = :ownerId AND (r.status = 'pending' OR r.status = 'returned');`,
         {
           ownerId: user.id,
         });
