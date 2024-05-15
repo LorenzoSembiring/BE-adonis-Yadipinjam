@@ -202,7 +202,7 @@ export default class RentsController {
           message: "Circulated book not found!"
         });
       }
-      const user_ID = rent.$extras.user_ID
+      const user_ID = rent.$extras.userID
       if (user.id !== user_ID) {
         return response.status(403).json({
           code: 403,
@@ -255,6 +255,34 @@ export default class RentsController {
           message: "not found",
         });
       }
+      return response.status(200).json({
+        code: 200,
+        message: "success",
+        data: data[0]
+      });
+    } catch (error) {
+      return response.status(500).json({
+        code: 500,
+        message: "fail",
+        error: error.message
+      });
+    }
+  }
+  public async confirmOwner({ response, auth }: HttpContext) {
+    const user = await auth.authenticate();
+    try {
+      const data = await db.rawQuery(`SELECT b.title, b.ISBN, u.username as peminjam, r.status FROM rents r LEFT JOIN circulated_books cb ON cb.id = r.Circulated_BookID LEFT JOIN books b ON cb.books_ISBN = b.ISBN LEFT JOIN users u ON u.id = r.userID WHERE cb.user_ID = :ownerId AND (r.status = 'pending' OR r.status = 'returned');`,
+        {
+          ownerId: user.id,
+        });
+
+      if (data[0].length === 0) {
+        return response.status(404).json({
+          code: 404,
+          message: "Kosong",
+        });
+      }
+
       return response.status(200).json({
         code: 200,
         message: "success",
