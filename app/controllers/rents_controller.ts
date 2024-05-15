@@ -155,10 +155,9 @@ export default class RentsController {
           message: "Circulated book not found!"
         });
       }
-      
+
       const idBuku = await CirculatedBook.find(circulatedBook)
       const user_ID = idBuku?.$extras.user_ID
-      console.log(idBuku)
       if (user.id !== user_ID) {
         return response.status(403).json({
           code: 403,
@@ -253,12 +252,6 @@ export default class RentsController {
           }
         );
       }
-      if (Object.keys(data[0]).length === 0) {
-        return response.status(404).json({
-          code: 404,
-          message: "not found",
-        });
-      }
       return response.status(200).json({
         code: 200,
         message: "success",
@@ -279,13 +272,6 @@ export default class RentsController {
         {
           ownerId: user.id,
         });
-
-      if (data[0].length === 0) {
-        return response.status(404).json({
-          code: 404,
-          message: "Kosong",
-        });
-      }
 
       return response.status(200).json({
         code: 200,
