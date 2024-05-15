@@ -107,7 +107,7 @@ export default class RentsController {
       }
 
       const user_ID = circulatedBook.$extras.user_ID
-      if (user.id !== user_ID) {
+      if (user.id != user_ID) {
         return response.status(403).json({
           code: 403,
           status: "Forbidden",
@@ -156,16 +156,16 @@ export default class RentsController {
         });
       }
       // const user_ID = rent.$extras.userID
-      const idBuku = await CirculatedBook.find(circulatedBook)
-      const user_ID = idBuku?.$extras.user_ID
-      console.log(idBuku)
-      if (user.id !== user_ID) {
-        return response.status(403).json({
-          code: 403,
-          status: "Forbidden",
-          message: "You are not authorized to confirm rent for this book"
-        });
-      }
+      // const idBuku = await CirculatedBook.find(circulatedBook)
+      // const user_ID = idBuku?.$extras.user_ID
+      // console.log(idBuku)
+      // if (user.id !== user_ID) {
+      //   return response.status(403).json({
+      //     code: 403,
+      //     status: "Forbidden",
+      //     message: "You are not authorized to confirm rent for this book"
+      //   });
+      // }
 
       rent.status = "confirmed";
       await rent.save()
