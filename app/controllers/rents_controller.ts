@@ -229,16 +229,22 @@ export default class RentsController {
     }
   }
   public async renterStatus({ request, response, auth }: HttpContext) {
-    const type = request.param('type')
+    const type = request.qs()
     const user = await auth.authenticate()
     try {
       const data = await db.rawQuery(
-        'SELECT * FROM `rents` WHERE status = :status AND userID = :user;',
+        'SELECT u.username, b.title, b.ISBN, r.status, r.start_date, r.end_date FROM rents r RIGHT JOIN circulated_books cb ON cb.id = r.Circulated_BookID LEFT JOIN books b on cb.books_ISBN = b.ISBN LEFT JOIN users u on u.id = cb.user_ID WHERE r.status = :status AND r.userID = :user;',
         {
-          status: type,
+          status: type.type,
           user: user.id
         }
       );
+      if(Object.keys(data[0]).length === 0) {
+        return response.status(404).json({
+          code: 404,
+          message: "not found",
+        });
+      }
       return response.status(200).json({
         code: 200,
         message: "success",
