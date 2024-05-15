@@ -2,6 +2,7 @@ import { HttpContext } from "@adonisjs/core/http";
 import Rent from "#models/rent";
 import db from '@adonisjs/lucid/services/db'
 import CirculatedBook from "#models/circulated_book";
+import CirculatedPicture from "#models/circulated_picture";
 
 export default class RentsController {
   public async borrow({ request, response, auth }: HttpContext) {
@@ -154,7 +155,10 @@ export default class RentsController {
           message: "Circulated book not found!"
         });
       }
-      const user_ID = rent.$extras.user_ID
+      // const user_ID = rent.$extras.userID
+      const idBuku = await CirculatedBook.find(circulatedBook)
+      const user_ID = idBuku?.$extras.user_ID
+      console.log(idBuku)
       if (user.id !== user_ID) {
         return response.status(403).json({
           code: 403,
