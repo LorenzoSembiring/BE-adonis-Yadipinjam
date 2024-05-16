@@ -328,7 +328,7 @@ export default class BooksController {
 
     try {
       const query = await db.rawQuery(
-        "SELECT cb.id AS circulated_book_id, b.ISBN, b.title AS book_title, GROUP_CONCAT(DISTINCT a.name SEPARATOR ', ') AS authors, p.name AS publisher, cb.description, cp.path AS image_link, cb.status AS status FROM circulated_books cb JOIN books b ON cb.books_ISBN = b.ISBN JOIN book_authors ba ON b.ISBN = ba.books_ISBN JOIN authors a ON ba.author_ID = a.id JOIN publishers p ON b.publisher_ID = p.id LEFT JOIN circulated_pictures cp ON cb.id = cp.circulated_book_ID JOIN users u ON cb.user_ID = u.id WHERE u.id = :id GROUP BY cb.id, b.ISBN;",
+        "SELECT cb.id AS circulated_book_id, b.ISBN, b.title AS book_title, GROUP_CONCAT(DISTINCT a.name SEPARATOR ', ') AS authors, p.name AS publisher, MAX(cb.description) AS description, MAX(cp.path) AS image_link, MAX(cb.status) AS status, MAX(b.verified) AS verified FROM circulated_books cb JOIN books b ON cb.books_ISBN = b.ISBN JOIN book_authors ba ON b.ISBN = ba.books_ISBN JOIN authors a ON ba.author_ID = a.id JOIN publishers p ON b.publisher_ID = p.id LEFT JOIN circulated_pictures cp ON cb.id = cp.circulated_book_ID JOIN users u ON cb.user_ID = u.id WHERE u.id = :id GROUP BY cb.id, b.ISBN;",
         {
           id: user.id,
         }
@@ -430,7 +430,7 @@ export default class BooksController {
   public async bookIndexAdmin({ response, auth }: HttpContext) {
     const user = await auth.authenticate()
     try {
-      if (user.role != 'admin') {
+      if (user.role == 'admin') {
         var data = await db.rawQuery(
           "SELECT DISTINCT b.* FROM `circulated_books` AS cb JOIN `users` AS u ON cb.user_ID = u.id JOIN `books` AS b ON cb.books_ISBN = b.ISBN WHERE u.id != :user OR cb.status = 'active' LIMIT 10 OFFSET 1;",
           {
