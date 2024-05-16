@@ -400,23 +400,25 @@ export default class BooksController {
       }
 
       // temukan circBook berdasarkan id
-      const verifCircBook = await Book.find(params.ISBN)
+      const book = await Book.find(params.ISBN)
 
       // cek apakah circBook ada atau tidak
-      if (!verifCircBook) {
+      if (!book) {
         return response.status(404).json({
           message: 'Not Found',
         })
       }
 
       // verified circBook
-      verifCircBook.verified = 'verified'
-      await verifCircBook.save()
-
+      await db.rawQuery(
+        "UPDATE books SET verified = 'verified' WHERE ISBN = :isbn;",
+        {
+          isbn: params.ISBN
+        }
+      )
       return response.status(200).json({
         code: 200,
         message: 'success',
-        data: verifCircBook,
       })
     } catch (error) {
       return response.status(500).json({
