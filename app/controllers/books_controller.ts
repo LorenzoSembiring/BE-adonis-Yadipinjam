@@ -480,19 +480,31 @@ export default class BooksController {
   public async searchBooks({ response, request }: HttpContext) {
     try {
       const searchBook = request.qs()
-      // cek search books
-      const query =
+      
+      if (Object.keys(searchBook).length !== 0) {
+        const query =
         "SELECT b.*, cb.description, cb.price, cb.status FROM `books` AS b JOIN `circulated_books` AS cb ON b.ISBN = cb.books_ISBN WHERE b.title LIKE '%" +
-        searchBook.search + "%'" + "AND cb.description LIKE '%" +
         searchBook.search + "%'"
 
-      const books = await db.rawQuery(query)
+        const books = await db.rawQuery(query)
 
-      return response.status(200).json({
-        code: 200,
-        message: 'Success',
-        data: books[0],
-      })
+        return response.status(200).json({
+          code: 200,
+          message: 'Success',
+          data: books[0],
+        })
+      } else {
+        const query =
+        "SELECT b.*, cb.description, cb.price, cb.status FROM `books` AS b JOIN `circulated_books` AS cb ON b.ISBN = cb.books_ISBN"
+
+        const books = await db.rawQuery(query)
+
+        return response.status(200).json({
+          code: 200,
+          message: 'Success',
+          data: books[0],
+        })
+      }
     } catch (error) {
       return response.status(500).json({
         code: 500,
