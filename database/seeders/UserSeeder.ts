@@ -5,13 +5,12 @@ import { BaseSeeder } from "@adonisjs/lucid/seeders"
 
 export default class UserSeeder extends BaseSeeder {
   public async run () {
-    const password = await hash.make('password')
 
     await User.createMany([
       {
         username: 'andi',
         email: 'andi@andi.com',
-        password: password,
+        password: "password",
         phone: 6281234567890,
         balance: 1000,
         trust_point: 100,
@@ -21,7 +20,7 @@ export default class UserSeeder extends BaseSeeder {
       {
         username: 'budi',
         email: 'budi@budi.com',
-        password: password,
+        password: "password",
         phone: 6281234567891,
         balance: 1000,
         trust_point: 100,
@@ -31,7 +30,7 @@ export default class UserSeeder extends BaseSeeder {
       {
         username: 'udin',
         email: 'udin@udin.com',
-        password: password,
+        password: "password",
         phone: 6281234567892,
         balance: 1000,
         trust_point: 100,
@@ -41,7 +40,7 @@ export default class UserSeeder extends BaseSeeder {
       {
         username: 'dedi',
         email: 'dedi@dedi.com',
-        password: password,
+        password: "password",
         phone: 6281234567893,
         balance: 1000,
         trust_point: 100,
@@ -51,7 +50,7 @@ export default class UserSeeder extends BaseSeeder {
       {
         username: 'admin',
         email: 'admin@admin.com',
-        password: password,
+        password: "password",
         phone: 6281234567894,
         balance: 10,
         trust_point: 100,
