@@ -454,6 +454,28 @@ export default class BooksController {
       })
     }
   }
+  public async detailBook({ request, response }: HttpContext) {
+    const isbn = request.param('ISBN')
+    try {
+      const data = await db.rawQuery(
+        "SELECT * FROM `books` WHERE ISBN = :isbn;",
+        {
+          isbn: isbn
+        }
+      )
+      return response.status(200).json({
+        code: 200,
+        status: 'success',
+        data: data[0],
+      })
+    } catch (error) {
+      return response.status(500).json({
+        code: 500,
+        message: 'fail',
+        error: error,
+      })
+    }
+  }
 
   public async searchBooks({ response, params }: HttpContext) {
     try {
