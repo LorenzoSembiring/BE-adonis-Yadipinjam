@@ -222,7 +222,6 @@ export default class BooksController {
   public async bookIndex({ response, auth }: HttpContext) {
     const user = await auth.authenticate()
     try {
-      console.log(user.id)
       if (user) {
         var data = await db.rawQuery(
           "SELECT b.* FROM circulated_books AS cb JOIN users AS u ON cb.user_ID = u.id JOIN books AS b ON cb.books_ISBN = b.ISBN WHERE u.id != :user AND cb.status = 'active' AND b.verified = 'verified';",
@@ -434,7 +433,7 @@ export default class BooksController {
     try {
       if (user.role == 'admin') {
         var data = await db.rawQuery(
-          "SELECT DISTINCT b.* FROM `circulated_books` AS cb JOIN `users` AS u ON cb.user_ID = u.id JOIN `books` AS b ON cb.books_ISBN = b.ISBN WHERE cb.status = 'active';",
+          "SELECT DISTINCT b.* FROM `circulated_books` AS cb JOIN `users` AS u ON cb.user_ID = u.id JOIN `books` AS b ON cb.books_ISBN = b.ISBN;",
           {
             user: user.id,
           }
@@ -486,7 +485,7 @@ export default class BooksController {
       if (Object.keys(searchBook).length !== 0) {
         const query =
         "SELECT b.*, cb.description, cb.price, cb.status FROM `books` AS b JOIN `circulated_books` AS cb ON b.ISBN = cb.books_ISBN WHERE b.title LIKE '%" +
-        searchBook.search + "%'"
+        searchBook.search + "%' AND cb.status = 'active' AND b.verified = 'verified';"
 
         const books = await db.rawQuery(query)
 
@@ -497,7 +496,7 @@ export default class BooksController {
         })
       } else {
         const query =
-        "SELECT b.*, cb.description, cb.price, cb.status FROM `books` AS b JOIN `circulated_books` AS cb ON b.ISBN = cb.books_ISBN"
+        "SELECT b.*, cb.description, cb.price, cb.status FROM `books` AS b JOIN `circulated_books` AS cb ON b.ISBN = cb.books_ISBN WHERE cb.status = 'active' AND b.verified = 'verified';"
 
         const books = await db.rawQuery(query)
 
