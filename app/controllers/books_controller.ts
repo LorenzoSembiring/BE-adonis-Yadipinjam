@@ -477,14 +477,14 @@ export default class BooksController {
     }
   }
 
-  public async searchBooks({ response, params }: HttpContext) {
+  public async searchBooks({ response, request }: HttpContext) {
     try {
-      const searchBook = params.searchBook
+      const searchBook = request.qs()
       // cek search books
       const query =
         "SELECT b.*, cb.description, cb.price, cb.status FROM `books` AS b JOIN `circulated_books` AS cb ON b.ISBN = cb.books_ISBN WHERE b.title LIKE '%" +
-        searchBook + "%'" + "AND cb.description LIKE '%" +
-        searchBook + "%'"
+        searchBook.search + "%'" + "AND cb.description LIKE '%" +
+        searchBook.search + "%'"
 
       const books = await db.rawQuery(query)
 
