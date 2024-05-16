@@ -12,5 +12,6 @@ router
     router.get('/book/circulatedBook', [BooksController, 'circBook'])
     router.get('/book/ciculated/verified/:id', [BooksController, 'verifyCircBook'])
     router.get('/book/admin',[BooksController, 'bookIndexAdmin'])
+    router.get('/book/search/:searchBook', [BooksController, 'searchBooks'])
   })
   .prefix('/api')

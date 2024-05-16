@@ -454,4 +454,28 @@ export default class BooksController {
       })
     }
   }
+
+  public async searchBooks({ response, params }: HttpContext) {
+    try {
+      const searchBook = params.searchBook
+      // cek search books
+      const query =
+        "SELECT b.*, cb.description, cb.price, cb.status FROM `books` AS b JOIN `circulated_books` AS cb ON b.ISBN = cb.books_ISBN WHERE b.title LIKE '%" +
+        searchBook + "%'" + "AND cb.description LIKE '%" +
+        searchBook + "%'"
+
+      const books = await db.rawQuery(query)
+
+      return response.status(200).json({
+        code: 200,
+        message: 'Success',
+        data: books[0],
+      })
+    } catch (error) {
+      return response.status(500).json({
+        code: 500,
+        error: error.message,
+      })
+    }
+  }
 }
