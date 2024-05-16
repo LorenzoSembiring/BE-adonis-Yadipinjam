@@ -218,6 +218,8 @@ export default class BooksController {
       })
     }
   }
+
+  // get all book except the user
   public async bookIndex({ response, auth }: HttpContext) {
     const user = await auth.authenticate()
     try {
@@ -331,6 +333,7 @@ export default class BooksController {
       })
     }
   }
+  // get all book from one user
   public async circBook({ auth, response }: HttpContext) {
     const user = await auth.authenticate()
 
@@ -430,6 +433,42 @@ export default class BooksController {
       return response.status(500).json({
         code: 500,
         error: error.message,
+      })
+    }
+  }
+
+  // admin only
+  public async bookIndexAdmin({ response, auth }: HttpContext) {
+    const user = await auth.authenticate()
+    try {
+      if (user.role != 'admin') {
+        var data = await db.rawQuery(
+          "SELECT DISTINCT b.* FROM `circulated_books` AS cb JOIN `users` AS u ON cb.user_ID = u.id JOIN `books` AS b ON cb.books_ISBN = b.ISBN WHERE u.id != :user OR cb.status = 'active' LIMIT 10 OFFSET 1;",
+          {
+            user: user.id,
+          }
+        )
+        return response.status(200).json({
+          code: 200,
+          status: 'success',
+          data: data[0],
+        })
+      } else {
+        var data = await db.rawQuery(
+          "SELECT DISTINCT b.* FROM books b JOIN circulated_books cb ON cb.books_ISBN = b.ISBN WHERE cb.status = 'active' LIMIT 10 OFFSET 1;"
+        )
+        console.log('data')
+        return response.status(200).json({
+          code: 200,
+          status: 'success',
+          data: data[0],
+        })
+      }
+    } catch (error) {
+      return response.status(500).json({
+        code: 500,
+        message: 'fail',
+        error: error,
       })
     }
   }
