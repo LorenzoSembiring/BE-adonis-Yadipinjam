@@ -225,7 +225,7 @@ export default class BooksController {
       console.log(user.id)
       if (user) {
         var data = await db.rawQuery(
-          "SELECT DISTINCT b.* FROM `circulated_books` AS cb JOIN `users` AS u ON cb.user_ID = u.id JOIN `books` AS b ON cb.books_ISBN = b.ISBN WHERE u.id != :user OR cb.status = 'active' LIMIT 10 OFFSET 1;",
+          "SELECT DISTINCT b.* FROM circulated_books AS cb JOIN users AS u ON cb.user_ID = u.id JOIN books AS b ON cb.books_ISBN = b.ISBN WHERE u.id != :user AND cb.status = 'active'  AND b.verified = 'verified' LIMIT 10 OFFSET 1;",
           {
             user: user.id,
           }
@@ -235,17 +235,7 @@ export default class BooksController {
           status: 'success',
           data: data[0],
         })
-      } else {
-        var data = await db.rawQuery(
-          "SELECT DISTINCT b.* FROM books b JOIN circulated_books cb ON cb.books_ISBN = b.ISBN WHERE cb.status = 'active' LIMIT 10 OFFSET 1;"
-        )
-        console.log('data')
-        return response.status(200).json({
-          code: 200,
-          status: 'success',
-          data: data[0],
-        })
-      }
+      } 
     } catch (error) {
       return response.status(500).json({
         code: 500,
@@ -452,17 +442,10 @@ export default class BooksController {
           status: 'success',
           data: data[0],
         })
-      } else {
-        var data = await db.rawQuery(
-          "SELECT DISTINCT b.* FROM books b JOIN circulated_books cb ON cb.books_ISBN = b.ISBN WHERE cb.status = 'active' LIMIT 10 OFFSET 1;"
-        )
-        console.log('data')
-        return response.status(200).json({
-          code: 200,
-          status: 'success',
-          data: data[0],
-        })
-      }
+      } return response.status(401).json({
+        code: 401,
+        status: 'unauthorized',
+      })
     } catch (error) {
       return response.status(500).json({
         code: 500,
