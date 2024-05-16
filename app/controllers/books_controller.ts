@@ -235,7 +235,7 @@ export default class BooksController {
           status: 'success',
           data: data[0],
         })
-      } 
+      }
     } catch (error) {
       return response.status(500).json({
         code: 500,
@@ -391,7 +391,7 @@ export default class BooksController {
     const user = await auth.authenticate()
     try {
       // Pastikan user yang sedang melakukan verifikasi memiliki role sebagai admin
-      if (user.role != 'admin') {
+      if (user.role != "admin") {
         return response.status(404).json({
           code: 404,
           status: 'anda bukan admin',
@@ -400,7 +400,7 @@ export default class BooksController {
       }
 
       // temukan circBook berdasarkan id
-      const verifCircBook = await CirculatedBook.find(params.id)
+      const verifCircBook = await Book.find(params.ISBN)
 
       // cek apakah circBook ada atau tidak
       if (!verifCircBook) {

@@ -10,7 +10,7 @@ router
     router.get('/book', [BooksController, 'bookIndex'])
     router.get('/book/circulated/activated/:id', [BooksController, 'activatedCirculatedBook'])
     router.get('/book/circulatedBook', [BooksController, 'circBook'])
-    router.get('/book/ciculated/verified/:id', [BooksController, 'verifyCircBook'])
+    router.get('/book/ciculated/verified/:ISBN', [BooksController, 'verifyCircBook'])
     router.get('/book/admin',[BooksController, 'bookIndexAdmin'])
     router.get('/book/search/:searchBook', [BooksController, 'searchBooks'])
   })
