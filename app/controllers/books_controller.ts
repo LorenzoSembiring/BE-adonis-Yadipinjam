@@ -432,7 +432,7 @@ export default class BooksController {
     try {
       if (user.role == 'admin') {
         var data = await db.rawQuery(
-          "SELECT DISTINCT b.* FROM `circulated_books` AS cb JOIN `users` AS u ON cb.user_ID = u.id JOIN `books` AS b ON cb.books_ISBN = b.ISBN WHERE u.id != :user OR cb.status = 'active' LIMIT 10 OFFSET 1;",
+          "SELECT DISTINCT b.* FROM `circulated_books` AS cb JOIN `users` AS u ON cb.user_ID = u.id JOIN `books` AS b ON cb.books_ISBN = b.ISBN WHERE cb.status = 'active';",
           {
             user: user.id,
           }
