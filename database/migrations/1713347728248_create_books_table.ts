@@ -9,6 +9,7 @@ export default class extends BaseSchema {
       table.integer('publisher_ID').references('publishers.id').notNullable().unsigned()
       table.integer('year')
       table.string('title')
+      table.string('verified')
       table.string('imagelink')
       table.dateTime('created_at')
       table.dateTime('updated_at')

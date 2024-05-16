@@ -9,7 +9,6 @@ export default class extends BaseSchema {
       table.string('description')
       table.integer('price')
       table.string('status')
-      table.string('verified')
       table.string('books_ISBN').references('books.ISBN').notNullable()
       table.integer('user_ID').references('users.id').notNullable().unsigned()
       table.dateTime('created_at')
