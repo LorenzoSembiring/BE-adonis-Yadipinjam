@@ -172,7 +172,6 @@ export default class BooksController {
         description: description,
         price: price,
         status: 'inactive',
-        verified: 'unverified',
         books_ISBN: ISBN,
         user_ID: user.id,
       })
