@@ -108,6 +108,7 @@ export default class BooksController {
           title: title,
           publisher_ID: publisher_ID,
           year: year,
+          verified: "unverified",
           imagelink: imagelink,
         })
       } else {

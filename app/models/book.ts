@@ -15,6 +15,9 @@ export default class Book extends BaseModel {
   declare title: string
 
   @column()
+  declare verified: string
+
+  @column()
   declare imagelink: string
 
   @column.dateTime({ autoCreate: true })
