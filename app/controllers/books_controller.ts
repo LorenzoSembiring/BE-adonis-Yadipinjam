@@ -225,7 +225,7 @@ export default class BooksController {
       console.log(user.id)
       if (user) {
         var data = await db.rawQuery(
-          "SELECT DISTINCT b.* FROM circulated_books AS cb JOIN users AS u ON cb.user_ID = u.id JOIN books AS b ON cb.books_ISBN = b.ISBN WHERE u.id != :user AND cb.status = 'active'  AND b.verified = 'verified' LIMIT 10 OFFSET 1;",
+          "SELECT b.* FROM circulated_books AS cb JOIN users AS u ON cb.user_ID = u.id JOIN books AS b ON cb.books_ISBN = b.ISBN WHERE u.id != :user AND cb.status = 'active' AND b.verified = 'verified';",
           {
             user: user.id,
           }
