@@ -6,7 +6,7 @@ export default class extends BaseSchema {
   async up() {
     this.schema.createTable(this.tableName, (table) => {
       table.string('ISBN').primary()
-      table.integer('publisher_ID').references('publishers.id').notNullable().unsigned()
+      table.integer('publisher_ID').references('publishers.id').notNullable().unsigned().onDelete('CASCADE')
       table.integer('year')
       table.string('title')
       table.string('verified')

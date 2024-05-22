@@ -6,8 +6,8 @@ export default class extends BaseSchema {
   async up() {
     this.schema.createTable(this.tableName, (table) => {
       table.increments('id')
-      table.integer('userID').references('users.id').notNullable().unsigned()
-      table.integer('Circulated_BookID').references('circulated_books.id').notNullable().unsigned()
+      table.integer('userID').references('users.id').notNullable().unsigned().onDelete('CASCADE')
+      table.integer('Circulated_BookID').references('circulated_books.id').notNullable().unsigned().onDelete('CASCADE')
       table.enum('status', ['pending', 'confirmed', 'overdue', 'returned', 'checking', 'complete'])
       table.date('start_date')
       table.date('end_date')
