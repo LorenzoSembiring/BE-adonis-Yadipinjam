@@ -13,6 +13,7 @@ import "./routes/publisher.ts"
 import "./routes/book.ts"
 import "./routes/author.ts"
 import "./routes/rent.ts"
+import "./routes/review.ts"
 
 router.get('/', async () => {
   return { status: 'connected!' }
