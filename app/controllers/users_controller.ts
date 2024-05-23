@@ -245,6 +245,31 @@ export default class UsersController {
       })
     }
   }
+  public async updatePassword({ auth, request, response }: HttpContext) {
+    const user = auth.authenticate()
+    const userID = (await user).id
+    const {password} = request.body()
+    // const hashedPassword = hash.make(password)
+    try {
+      const userModel = await User.find(userID)
+      if(userModel) {
+        userModel.password = password
+        await userModel?.save()
+
+        return response.status(200).json({
+          code: 200,
+          status: 'success',
+          message: "password successfully updated"
+        })
+      }
+    } catch (error) {
+      return response.status(500).json({
+        code: 500,
+        message: 'fail',
+        error: error.message,
+      })
+    }
+  }
 }
 
 enum role {
