@@ -2,7 +2,6 @@ import { HttpContext } from '@adonisjs/core/http'
 import User from '#models/user'
 import hash from '@adonisjs/core/services/hash'
 import db from '@adonisjs/lucid/services/db'
-import { Env } from '@adonisjs/core/env'
 
 export default class UsersController {
   public async register({ request, response }: HttpContext) {
@@ -169,7 +168,7 @@ export default class UsersController {
       }
 
       var data = await db.rawQuery(
-        "SELECT id, username, email from users WHERE role= :role;",
+        "SELECT * from users WHERE role= :role;",
         { role: role.user }
       )
 
