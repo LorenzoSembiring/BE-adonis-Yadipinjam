@@ -8,7 +8,6 @@ export default class extends BaseSchema {
       table.increments('id').primary().notNullable()
       table.integer('star').nullable()
       table.string('feedback').nullable()
-      table.integer('status').nullable()
       table.integer('to').references('users.id').notNullable().unsigned().onDelete('CASCADE')
       table.integer('from').references('users.id').notNullable().unsigned().onDelete('CASCADE')
       table.enum('type', ['to renter', 'to owner']).notNullable()

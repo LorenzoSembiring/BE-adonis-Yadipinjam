@@ -12,11 +12,22 @@ export default class Review extends BaseModel {
   declare feedback: string
 
   @column()
-  declare status: number
+  declare to: number
+
+  @column()
+  declare from: number
+
+  @column()
+  declare type: type
 
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
 
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   declare updatedAt: DateTime
+}
+
+enum type{
+  renter = "to renter",
+  owner = "to owner"
 }
