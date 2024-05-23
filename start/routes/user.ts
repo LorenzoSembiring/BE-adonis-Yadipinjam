@@ -7,6 +7,7 @@ router.group(() => {
   router.get('/user', [UsersController, 'getUser'])
   router.get('/index', [UsersController, 'indexUser'])
   router.get('/user/book/:id', [UsersController, 'userBook'])
+  router.put('/admin/update', [UsersController, 'updateAdmin'])
   router.delete('/logout', [UsersController, 'logout'])
   router.delete('/delete/:id', [UsersController, 'deleteUser'])
 }).prefix('/api/auth')

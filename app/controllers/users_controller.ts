@@ -21,14 +21,13 @@ export default class UsersController {
       phone: phone,
       balance: 0,
       trust_point: 10,
-      status: "active",
-      role: role.user
+      status: 'active',
+      role: role.user,
     })
 
     const token = await User.accessTokens.create(user, ['*'], {
-      expiresIn: '30 days'
+      expiresIn: '30 days',
     })
-
 
     return response.status(200).json({
       code: '200',
@@ -61,7 +60,7 @@ export default class UsersController {
       }
 
       const token = await User.accessTokens.create(user, ['*'], {
-        expiresIn: '30 days'
+        expiresIn: '30 days',
       })
       return response.status(200).json({
         code: '200',
@@ -83,14 +82,14 @@ export default class UsersController {
       const user = await auth.authenticate()
       return response.status(200).json({
         code: 200,
-        status: "success",
-        data: user
+        status: 'success',
+        data: user,
       })
     } catch (error) {
       return response.status(500).json({
         code: 500,
-        message: "fail",
-        error: error
+        message: 'fail',
+        error: error,
       })
     }
   }
@@ -104,14 +103,13 @@ export default class UsersController {
 
       return response.status(200).json({
         code: 200,
-        status: "success",
-
+        status: 'success',
       })
     } catch (error) {
       return response.status(500).json({
         code: 500,
-        message: "fail",
-        error: error
+        message: 'fail',
+        error: error,
       })
     }
   }
@@ -119,7 +117,7 @@ export default class UsersController {
     const user = await auth.authenticate()
     try {
       // Pastikan yang dapat menghapus user adalah admin
-      if (user.role != "admin") {
+      if (user.role != 'admin') {
         return response.status(404).json({
           code: 404,
           status: 'anda bukan admin',
@@ -137,12 +135,9 @@ export default class UsersController {
         })
       }
 
-      await db.rawQuery(
-        "DELETE FROM users WHERE id=:idUser;",
-        {
-          idUser: params.id
-        }
-      )
+      await db.rawQuery('DELETE FROM users WHERE id=:idUser;', {
+        idUser: params.id,
+      })
 
       return response.status(200).json({
         code: 200,
@@ -159,7 +154,7 @@ export default class UsersController {
     const user = await auth.authenticate()
     try {
       // Pastikan yang dapat menghapus user adalah admin
-      if (user.role != "admin") {
+      if (user.role != 'admin') {
         return response.status(404).json({
           code: 404,
           status: 'anda bukan admin',
@@ -167,15 +162,12 @@ export default class UsersController {
         })
       }
 
-      var data = await db.rawQuery(
-        "SELECT * from users WHERE role= :role;",
-        { role: role.user }
-      )
+      var data = await db.rawQuery('SELECT * from users WHERE role= :role;', { role: role.user })
 
       return response.status(200).json({
         code: 200,
         message: 'success',
-        data: data[0]
+        data: data[0],
       })
     } catch (error) {
       return response.status(500).json({
@@ -188,7 +180,7 @@ export default class UsersController {
     const user = await auth.authenticate()
     try {
       // Pastikan yang dapat menghapus user adalah admin
-      if (user.role != "admin") {
+      if (user.role != 'admin') {
         return response.status(404).json({
           code: 404,
           status: 'anda bukan admin',
@@ -207,12 +199,12 @@ export default class UsersController {
       var data = await db.rawQuery(
         "SELECT cb.id as id_circulated, cb.books_ISBN, b.title, p.name as publisher, b.year, cb.description, GROUP_CONCAT(DISTINCT cp.path SEPARATOR ', ') AS image_links FROM circulated_books cb LEFT JOIN books b on cb.books_ISBN = b.ISBN LEFT JOIN publishers p ON b.publisher_ID= p.id LEFT JOIN circulated_pictures cp ON cb.id = cp.circulated_book_ID where cb.user_ID = :idUser GROUP BY cb.id, cb.books_ISBN, b.title, p.name, b.year, cb.description;",
         { idUser: params.id }
-      )      
+      )
 
       return response.status(200).json({
         code: 200,
         message: 'success',
-        data: data[0]
+        data: data[0],
       })
     } catch (error) {
       return response.status(500).json({
@@ -221,9 +213,41 @@ export default class UsersController {
       })
     }
   }
+  public async updateAdmin({ auth, request, response }: HttpContext) {
+    const user = auth.authenticate()
+    const userID = (await user).id
+    const role = (await user).role
+    const input = request.only(['email', 'username', 'phone', 'balance', 'status', 'trust_point'])
+    try {
+      if (role != 'admin') {
+        return response.status(403).json({
+          code: 403,
+          status: 'forbidden',
+          message: "your role access isn't sufficient to perform this action",
+        })
+      }
+
+      const admin = await User.find(userID)
+      admin?.merge(input)
+      await admin?.save()
+
+      return response.status(200).json({
+        code: 200,
+        status: "success",
+        data: admin
+      })
+
+    } catch (error) {
+      return response.status(500).json({
+        code: 500,
+        message: 'fail',
+        error: error.message,
+      })
+    }
+  }
 }
 
 enum role {
-  admin = "admin",
-  user = "user"
+  admin = 'admin',
+  user = 'user',
 }
