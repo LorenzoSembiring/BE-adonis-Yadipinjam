@@ -11,4 +11,5 @@ router.group(() => {
   router.put('/password-update', [UsersController, 'updatePassword'])
   router.delete('/logout', [UsersController, 'logout'])
   router.delete('/delete/:id', [UsersController, 'deleteUser'])
+  router.put('/users/update', [UsersController, 'updateUser'])
 }).prefix('/api/auth')

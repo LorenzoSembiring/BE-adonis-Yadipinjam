@@ -270,6 +270,42 @@ export default class UsersController {
       })
     }
   }
+
+  public async updateUser({ auth, request, response }: HttpContext) {
+    try {
+      // Autentikasi pengguna
+      const user = await auth.authenticate()
+
+      // Validasi input
+      const input = request.only(['email', 'username', 'phone'])
+
+      // Cek pengguna berdasarkan ID
+      const userToUpdate = await User.find(user.id)
+      if (!userToUpdate) {
+        return response.status(404).json({
+          code: 404,
+          status: 'Not Found',
+          message: 'User not found',
+        })
+      }
+
+      // Perbarui informasi pengguna
+      userToUpdate.merge(input)
+      await userToUpdate.save()
+
+      return response.status(200).json({
+        code: 200,
+        status: 'success',
+        data: userToUpdate,
+      })
+    } catch (error) {
+      return response.status(500).json({
+        code: 500,
+        message: 'fail',
+        error: error.message,
+      })
+    }
+  }
 }
 
 enum role {
