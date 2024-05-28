@@ -18,7 +18,7 @@ export default class Review extends BaseModel {
   declare from: number
 
   @column()
-  declare type: type
+  declare type: types
 
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
@@ -27,7 +27,7 @@ export default class Review extends BaseModel {
   declare updatedAt: DateTime
 }
 
-enum type{
+enum types{
   renter = "to renter",
   owner = "to owner"
 }
