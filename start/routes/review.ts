@@ -5,4 +5,5 @@ router.group(() => {
   router.post('owner',[ReviewsController, 'reviewOwner'])
   router.post('renter',[ReviewsController, 'reviewRenter'])
   router.post('get/:id',[ReviewsController, 'getReview'])
+  router.post('get/owner/:id',[ReviewsController, 'getOwnerReview'])
 }).prefix('/api/review')
