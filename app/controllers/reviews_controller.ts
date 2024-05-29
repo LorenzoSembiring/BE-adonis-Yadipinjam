@@ -146,7 +146,7 @@ export default class ReviewsController {
       const review = await db.rawQuery(
         'SELECT * FROM `reviews` r WHERE r.type = "to owner" AND r.to = :owner;',
         {
-          owner: ownerID
+          owner: id
         }
       )
       if (!review[0][0]) {
