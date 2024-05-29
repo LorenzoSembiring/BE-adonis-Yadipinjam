@@ -6,7 +6,17 @@ export default class ReviewsController {
   public async reviewOwner({ auth, request, response }: HttpContext) {
     try {
       const user = await auth.authenticate()
+      const userID = user.id
       const { star, feedback, to } = request.body()
+
+      // Memeriksa apakah user memberi review untuk dirinya sendiri
+      if (userID == to) {
+        return response.status(403).json({
+          code: 403,
+          status: 'forbidden',
+          message: "you can't review yoursself"
+        })
+      }
 
       // Memeriksa apakah user pernah meminjam buku dari pemilik (to)
       const hasBorrowed = await db.rawQuery(
@@ -57,7 +67,17 @@ export default class ReviewsController {
   public async reviewRenter({ auth, request, response }: HttpContext) {
     try {
       const user = await auth.authenticate()
+      const userID = user.id
       const { star, feedback, to } = request.body()
+
+      // Memeriksa apakah user memberi review untuk dirinya sendiri
+      if (userID == to) {
+        return response.status(403).json({
+          code: 403,
+          status: 'forbidden',
+          message: "you can't review yoursself"
+        })
+      }
 
       // Memeriksa apakah user pernah meminjam buku dari pemilik (to)
       const hasBorrowed = await db.rawQuery(
