@@ -153,7 +153,45 @@ export default class ReviewsController {
         return response.status(404).json({
           code: 404,
           status: 'not found',
-          message: '',
+          message: 'review to this owner is not found',
+        })
+      }
+      return response.status(200).json({
+        code: 200,
+        status: 'success',
+        data: review[0][0],
+      })
+    } catch (error) {
+      return response.status(500).json({
+        code: 500,
+        message: 'Failed',
+        error: error.message,
+      })
+    }
+  }
+
+  public async getRenterReview({ auth, request, response }: HttpContext) {
+    const user = await auth.authenticate()
+    const id = request.param('id')
+    try {
+      if (!user) {
+        return response.status(401).json({
+          code: 401,
+          status: 'unauthorized',
+          data: user,
+        })
+      }
+      const review = await db.rawQuery(
+        'SELECT * FROM `reviews` r WHERE r.type = "to renter" AND r.to = :renter;',
+        {
+          renter: id
+        }
+      )
+      if (!review[0][0]) {
+        return response.status(404).json({
+          code: 404,
+          status: 'not found',
+          message: 'review to this renter is not found',
         })
       }
       return response.status(200).json({
