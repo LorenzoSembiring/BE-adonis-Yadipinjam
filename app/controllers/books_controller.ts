@@ -481,7 +481,7 @@ export default class BooksController {
   public async searchBooks({ response, request }: HttpContext) {
     try {
       const searchBook = request.qs()
-      
+
       if (Object.keys(searchBook).length !== 0) {
         const query =
         "SELECT b.*, cb.description, cb.price, cb.status FROM `books` AS b JOIN `circulated_books` AS cb ON b.ISBN = cb.books_ISBN WHERE b.title LIKE '%" +

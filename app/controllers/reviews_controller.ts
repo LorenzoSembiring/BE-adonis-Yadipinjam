@@ -104,6 +104,36 @@ export default class ReviewsController {
       })
     }
   }
+
+  public async getReview({ auth, request, response }: HttpContext) {
+    const user = await auth.authenticate()
+    const userID = user.id
+    const id = request.param('id')
+    try {
+      if (!user) {
+        return response.status(401).json({
+          code: 401,
+          status: 'unauthorized',
+          data: user,
+        })
+      }
+      const review = await Review.find(id)
+
+      return response.status(200).json({
+        code: 200,
+        status: "success",
+        data: review
+      })
+
+
+    } catch (error) {
+      return response.status(500).json({
+        code: 500,
+        message: 'Failed',
+        error: error.message,
+      })
+    }
+  }
 }
 
 enum types{
