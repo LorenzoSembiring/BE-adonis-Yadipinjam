@@ -267,7 +267,7 @@ export default class RentsController {
   public async confirmOwner({ response, auth }: HttpContext) {
     const user = await auth.authenticate();
     try {
-      const data = await db.rawQuery(`SELECT r.id, b.title, b.ISBN, u.username as peminjam, r.status, r.start_date as tanggal_mulai, r.end_date as tanggal_selesai FROM rents r LEFT JOIN circulated_books cb ON cb.id = r.Circulated_BookID LEFT JOIN books b ON cb.books_ISBN = b.ISBN LEFT JOIN users u ON u.id = r.userID WHERE cb.user_ID = :ownerId;`,
+      const data = await db.rawQuery(`SELECT r.id, u.id as id_peminjam, b.title, b.ISBN, u.username as peminjam, r.status, r.start_date as tanggal_mulai, r.end_date as tanggal_selesai FROM rents r LEFT JOIN circulated_books cb ON cb.id = r.Circulated_BookID LEFT JOIN books b ON cb.books_ISBN = b.ISBN LEFT JOIN users u ON u.id = r.userID WHERE cb.user_ID = :ownerId;`,
         {
           ownerId: user.id,
         });
