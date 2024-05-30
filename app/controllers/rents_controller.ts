@@ -237,7 +237,7 @@ export default class RentsController {
       let data;
       if (type.type) {
         data = await db.rawQuery(
-          'SELECT r.id, u.username, b.title, b.ISBN, r.status, r.start_date, r.end_date FROM rents r RIGHT JOIN circulated_books cb ON cb.id = r.Circulated_BookID LEFT JOIN books b on cb.books_ISBN = b.ISBN LEFT JOIN users u on u.id = cb.user_ID WHERE r.status = :status AND r.userID = :user;',
+          'SELECT r.id, cb.user_ID as ID_user, u.username, b.title, b.ISBN, r.status, r.start_date, r.end_date FROM rents r RIGHT JOIN circulated_books cb ON cb.id = r.Circulated_BookID LEFT JOIN books b on cb.books_ISBN = b.ISBN LEFT JOIN users u on u.id = cb.user_ID WHERE r.status = :status AND r.userID = :user;',
           {
             status: type.type,
             user: user.id
@@ -245,7 +245,7 @@ export default class RentsController {
         );
       } else {
         data = await db.rawQuery(
-          'SELECT r.id, u.username, b.title, b.ISBN, r.status, r.start_date, r.end_date FROM rents r RIGHT JOIN circulated_books cb ON cb.id = r.Circulated_BookID LEFT JOIN books b on cb.books_ISBN = b.ISBN LEFT JOIN users u on u.id = cb.user_ID WHERE r.userID = :user;',
+          'SELECT r.id, cb.user_ID as ID_user, u.username, b.title, b.ISBN, r.status, r.start_date, r.end_date FROM rents r RIGHT JOIN circulated_books cb ON cb.id = r.Circulated_BookID LEFT JOIN books b on cb.books_ISBN = b.ISBN LEFT JOIN users u on u.id = cb.user_ID WHERE r.userID = :user;',
           {
             user: user.id
           }
