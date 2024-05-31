@@ -358,7 +358,7 @@ export default class BooksController {
     const { circulated_ID } = request.body()
     try {
       const query = await db.rawQuery(
-        "SELECT cb.id AS circulated_book_id, b.ISBN, b.title AS book_title, GROUP_CONCAT(a.name SEPARATOR ', ') AS authors, p.name AS publisher, cb.description, cp.path AS image_link, u.username AS uploader_name FROM circulated_books cb JOIN books b ON cb.books_ISBN = b.ISBN JOIN book_authors ba ON b.ISBN = ba.books_ISBN JOIN authors a ON ba.author_ID = a.id JOIN publishers p ON b.publisher_ID = p.id LEFT JOIN circulated_pictures cp ON cb.id = cp.circulated_book_ID JOIN users u ON cb.user_ID = u.id WHERE cb.id = :id;",
+        "SELECT cb.id AS circulated_book_id, b.ISBN, b.title AS book_title, GROUP_CONCAT(a.name SEPARATOR ', ') AS authors, p.name AS publisher, cb.description, cp.path AS image_link, u.username AS uploader_name, u.id AS uploader_id FROM circulated_books cb JOIN books b ON cb.books_ISBN = b.ISBN JOIN book_authors ba ON b.ISBN = ba.books_ISBN JOIN authors a ON ba.author_ID = a.id JOIN publishers p ON b.publisher_ID = p.id LEFT JOIN circulated_pictures cp ON cb.id = cp.circulated_book_ID JOIN users u ON cb.user_ID = u.id WHERE cb.id = :id;",
         {
           id: parseInt(circulated_ID),
         }
