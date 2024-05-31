@@ -1,4 +1,4 @@
-import Review from '#models/review'
+import UserReview from '#models/user_review'
 import { HttpContext } from '@adonisjs/core/http'
 import db from '@adonisjs/lucid/services/db'
 
@@ -30,7 +30,7 @@ export default class ReviewsController {
       // Membuat review
 
       if (hasBorrowed[0][0]) {
-        const review = await Review.create({
+        const review = await UserReview.create({
           star,
           feedback,
           to,
@@ -91,7 +91,7 @@ export default class ReviewsController {
       // Membuat review
 
       if (hasBorrowed[0][0]) {
-        const review = await Review.create({
+        const review = await UserReview.create({
           star,
           feedback,
           to,
@@ -136,7 +136,7 @@ export default class ReviewsController {
           data: user,
         })
       }
-      const review = await Review.find(id)
+      const review = await UserReview.find(id)
 
       return response.status(200).json({
         code: 200,
@@ -164,7 +164,7 @@ export default class ReviewsController {
         })
       }
       const review = await db.rawQuery(
-        'SELECT * FROM `reviews` r WHERE r.type = "to owner" AND r.to = :owner;',
+        'SELECT * FROM `user_reviews` r WHERE r.type = "to owner" AND r.to = :owner;',
         {
           owner: id
         }
@@ -202,7 +202,7 @@ export default class ReviewsController {
         })
       }
       const review = await db.rawQuery(
-        'SELECT * FROM `reviews` r WHERE r.type = "to renter" AND r.to = :renter;',
+        'SELECT * FROM `user_reviews` r WHERE r.type = "to renter" AND r.to = :renter;',
         {
           renter: id
         }
