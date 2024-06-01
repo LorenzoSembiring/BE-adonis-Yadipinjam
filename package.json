@@ -43,6 +43,7 @@
     "@swc/core": "^1.4.14",
     "@types/luxon": "^3.4.2",
     "@types/node": "^20.12.7",
+    "@types/node-cron": "^3.0.11",
     "eslint": "^8.57.0",
     "pino-pretty": "^11.0.0",
     "prettier": "^3.2.5",
@@ -58,6 +59,7 @@
     "axios": "^1.6.8",
     "luxon": "^3.4.4",
     "mysql2": "^3.9.4",
+    "node-cron": "^3.0.3",
     "reflect-metadata": "^0.2.2"
   },
   "eslintConfig": {

@@ -2,6 +2,7 @@ import { HttpContext } from '@adonisjs/core/http'
 import Rent from '#models/rent'
 import db from '@adonisjs/lucid/services/db'
 import CirculatedBook from '#models/circulated_book'
+import cron from 'node-cron'
 
 export default class RentsController {
   public async borrow({ request, response, auth }: HttpContext) {
@@ -42,9 +43,9 @@ export default class RentsController {
       if (existingRent[0][0]) {
         return response.status(403).json({
           code: 403,
-          status: "Forbidden",
-          message: "You already rent this book"
-        });
+          status: 'Forbidden',
+          message: 'You already rent this book',
+        })
       }
 
       const data = await db.rawQuery(
@@ -288,4 +289,26 @@ export default class RentsController {
       })
     }
   }
+
+  static async checkOverdue() {
+    const now = new Date()
+    const formattedNow = now.toISOString().slice(0, 10) // Format the date for MySQL
+    try {
+      await db.rawQuery(
+        "UPDATE `rents` SET status = 'overdue' WHERE end_date < :now AND status NOT IN ('complete', 'returned', 'checking');",
+        {
+          now: now,
+        }
+      )
+      console.log(formattedNow)
+      console.log(`Updated overdue rentals.`)
+    } catch (error) {
+      console.error('Error updating overdue rentals:', error)
+    }
+  }
 }
+
+cron.schedule('0 0 0 * * *', () => {
+  console.log('Checking for overdue rentals...')
+  RentsController.checkOverdue()
+})
