@@ -270,6 +270,37 @@ export default class ReviewsController {
       })
     }
   }
+
+  public async getBookReview({ request, response }: HttpContext) {
+    const circulatedBookID = request.param('id')
+    try {
+      const review = await db.rawQuery(
+        'SELECT br.*, u.username AS reviewer FROM `book_reviews` br JOIN `users` u on br.from = u.id WHERE br.circulated_id = :id',
+        {
+          id: circulatedBookID
+        }
+      )
+      if (review[0][0]) {
+        return response.status(200).json({
+          code: 200,
+          status:"success",
+          data: review[0]
+        })
+      } else {
+        return response.status(404).json({
+          code: 404,
+          status:"not found",
+          message: "reviews not found"
+        })
+      }
+    } catch (error) {
+      return response.status(500).json({
+        code: 500,
+        message: 'Failed',
+        error: error.message,
+      })
+    }
+  }
 }
 
 enum types {
