@@ -2,9 +2,9 @@ import { HttpContext } from '@adonisjs/core/http'
 import Rent from '#models/rent'
 import db from '@adonisjs/lucid/services/db'
 import CirculatedBook from '#models/circulated_book'
-import cron from 'node-cron'
 
 export default class RentsController {
+  // meminjam buku
   public async borrow({ request, response, auth }: HttpContext) {
     const user = await auth.authenticate()
     const { circulated_ID } = request.body()
@@ -73,6 +73,7 @@ export default class RentsController {
     }
   }
 
+  // Mengonfirmasi buku telah kembali dan rent complete
   public async confirmReturn({ request, response, auth }: HttpContext) {
     try {
       const user = await auth.authenticate()
@@ -132,6 +133,7 @@ export default class RentsController {
     }
   }
 
+  // konfirmasi pemilik bahwa buku akan dipinjamkan kepada user yang bersangkutan
   public async confirmBorrow({ request, response, auth }: HttpContext) {
     const user = await auth.authenticate()
     const { rent_ID } = request.body()
@@ -182,6 +184,58 @@ export default class RentsController {
     }
   }
 
+  // pemilik menolak peminjaman buku
+  public async confirmReject({ request, response, auth }: HttpContext) {
+    const user = await auth.authenticate()
+    const { rent_ID } = request.body()
+    const rent = await Rent.find(rent_ID)
+
+    try {
+      if (!rent) {
+        return response.status(404).json({
+          code: 404,
+          status: 'not found',
+          message: 'Rent not found!',
+        })
+      }
+
+      const circulatedBook = rent.$extras.Circulated_BookID
+      if (!circulatedBook) {
+        return response.status(404).json({
+          code: 404,
+          status: 'not found',
+          message: 'Circulated book not found!',
+        })
+      }
+
+      const idBuku = await CirculatedBook.find(circulatedBook)
+      const user_ID = idBuku?.$extras.user_ID
+      if (user.id !== user_ID) {
+        return response.status(403).json({
+          code: 403,
+          status: 'Forbidden',
+          message: 'You are not authorized to reject for this book',
+        })
+      }
+
+      rent.status = 'rejected'
+      await rent.save()
+
+      return response.status(200).json({
+        code: 200,
+        status: 'success',
+        message: 'Rent has been rejected',
+      })
+    } catch (error) {
+      return response.status(500).json({
+        code: 500,
+        message: 'fail',
+        error: error.message,
+      })
+    }
+  }
+
+  // mengembalikan buku
   public async returnBook({ request, response, auth }: HttpContext) {
     const user = await auth.authenticate()
     const { rent_ID } = request.body()
@@ -231,6 +285,7 @@ export default class RentsController {
     }
   }
 
+  // melihat index rent dari sisi peminjam
   public async renterStatus({ request, response, auth }: HttpContext) {
     const type = request.qs()
     const user = await auth.authenticate()
@@ -266,6 +321,7 @@ export default class RentsController {
     }
   }
 
+  // melihat status buku miliknya yang dipinjam oleh orang lain
   public async confirmOwner({ response, auth }: HttpContext) {
     const user = await auth.authenticate()
     try {
@@ -280,6 +336,56 @@ export default class RentsController {
         code: 200,
         message: 'success',
         data: data[0],
+      })
+    } catch (error) {
+      return response.status(500).json({
+        code: 500,
+        message: 'fail',
+        error: error.message,
+      })
+    }
+  }
+
+  //konfirmasi peminjam sudah terima buku yang akan dipinjam
+  public async confirmRent({ request, response, auth }: HttpContext) {
+    const user = await auth.authenticate()
+    const { rent_ID } = request.body()
+    const rent = await Rent.find(rent_ID)
+
+    try {
+      if (!rent) {
+        return response.status(404).json({
+          code: 404,
+          status: 'not found',
+          message: 'Rent not found!',
+        })
+      }
+      
+      const circulatedBook = rent.$extras.Circulated_BookID
+      if (!circulatedBook) {
+        return response.status(404).json({
+          code: 404,
+          status: 'not found',
+          message: 'Circulated book not found!',
+        })
+      }
+      const user_ID = rent.$extras.userID
+      if (user.id !== user_ID) {
+        return response.status(403).json({
+          code: 403,
+          status: 'Forbidden',
+          message: 'You are not authorized to confirm rent for this book',
+        })
+      }
+
+      // Mengubah status sewa menjadi "returned"
+      rent.status = 'rented'
+      await rent.save()
+
+      return response.status(200).json({
+        code: 200,
+        status: 'success',
+        message: 'Book has been confirmed in your hand',
       })
     } catch (error) {
       return response.status(500).json({
@@ -307,8 +413,3 @@ export default class RentsController {
     }
   }
 }
-
-cron.schedule('0 0 0 * * *', () => {
-  console.log('Checking for overdue rentals...')
-  RentsController.checkOverdue()
-})

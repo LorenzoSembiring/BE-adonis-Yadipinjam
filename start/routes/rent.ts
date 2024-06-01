@@ -7,5 +7,7 @@ router.group(() => {
   router.post('/return',[RentsController, 'returnBook'])
   router.get('/confirmOwner',[RentsController, 'confirmOwner'])
   router.post('/confirmBorrow',[RentsController, 'confirmBorrow'])
+  router.post('/reject',[RentsController, 'confirmReject'])
   router.post('/confirmReturn',[RentsController, 'confirmReturn'])
+  router.post('/confirmRent',[RentsController, 'confirmRent'])
 }).prefix('/api/rent')

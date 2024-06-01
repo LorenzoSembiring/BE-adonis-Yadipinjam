@@ -6,7 +6,7 @@ export default class extends BaseSeeder {
     BookAuthor.createMany([
       {
         author_ID: 1,
-        books_ISBN: "9780679764029"
+        books_ISBN: "0316769487"
       },
       {
         author_ID: 2,
@@ -22,7 +22,7 @@ export default class extends BaseSeeder {
       },
       {
         author_ID: 5,
-        books_ISBN: "0316769487"
+        books_ISBN: "9780679764029"
       },
 
     ])
