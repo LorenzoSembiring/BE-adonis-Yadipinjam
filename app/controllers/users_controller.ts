@@ -80,11 +80,15 @@ export default class UsersController {
   public async getUserByID({ request, response }: HttpContext) {
     const id = request.param('id')
     try {
-      const user = await User.find(id)
+      const user = await db.rawQuery('SELECT u.username, u.email, u.phone, u.trust_point, u.created_at AS "since" FROM `users` u WHERE id = :user',
+      {
+        user: id
+      }
+    )
       return response.status(200).json({
         code: 200,
         status: 'success',
-        data: user,
+        data: user[0][0]
       })
     } catch (error) {
       return response.status(500).json({
