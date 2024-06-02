@@ -5,6 +5,7 @@ router.group(() => {
   router.post('/register', [UsersController, 'register'])
   router.post('/login', [UsersController, 'login'])
   router.get('/user', [UsersController, 'getUser'])
+  router.get('/user-id/:id', [UsersController, 'getUserByID'])
   router.get('/index', [UsersController, 'indexUser'])
   router.get('/user/book/:id', [UsersController, 'userBook'])
   router.put('/admin/update', [UsersController, 'updateAdmin'])

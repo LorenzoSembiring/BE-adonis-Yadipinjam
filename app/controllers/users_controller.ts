@@ -77,6 +77,23 @@ export default class UsersController {
       })
     }
   }
+  public async getUserByID({ request, response }: HttpContext) {
+    const id = request.param('id')
+    try {
+      const user = await User.find(id)
+      return response.status(200).json({
+        code: 200,
+        status: 'success',
+        data: user,
+      })
+    } catch (error) {
+      return response.status(500).json({
+        code: 500,
+        message: 'fail',
+        error: error,
+      })
+    }
+  }
   public async getUser({ auth, response }: HttpContext) {
     try {
       const user = await auth.authenticate()
