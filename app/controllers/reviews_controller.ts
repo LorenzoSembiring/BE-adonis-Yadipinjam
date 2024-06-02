@@ -180,7 +180,7 @@ export default class ReviewsController {
       return response.status(200).json({
         code: 200,
         status: 'success',
-        data: review[0][0],
+        data: review[0],
       })
     } catch (error) {
       return response.status(500).json({
@@ -218,7 +218,7 @@ export default class ReviewsController {
       return response.status(200).json({
         code: 200,
         status: 'success',
-        data: review[0][0],
+        data: review[0],
       })
     } catch (error) {
       return response.status(500).json({
