@@ -2,6 +2,7 @@ import { HttpContext } from '@adonisjs/core/http'
 import Rent from '#models/rent'
 import db from '@adonisjs/lucid/services/db'
 import CirculatedBook from '#models/circulated_book'
+import cron from 'node-cron'
 
 export default class RentsController {
   // meminjam buku
@@ -413,3 +414,7 @@ export default class RentsController {
     }
   }
 }
+cron.schedule('0 0 0 * * *', () => {
+  console.log('Checking for overdue rentals...')
+  RentsController.checkOverdue()
+})
