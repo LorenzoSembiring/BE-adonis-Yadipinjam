@@ -165,7 +165,7 @@ export default class ReviewsController {
         })
       }
       const review = await db.rawQuery(
-        'SELECT * FROM `user_reviews` r WHERE r.type = "to owner" AND r.to = :owner;',
+        'SELECT r.*, u.username as reviewer FROM `user_reviews` r LEFT JOIN `users` u ON r.from = u.id WHERE r.type = "to owner" AND r.to = :owner;',
         {
           owner: id
         }
@@ -203,7 +203,7 @@ export default class ReviewsController {
         })
       }
       const review = await db.rawQuery(
-        'SELECT * FROM `user_reviews` r WHERE r.type = "to renter" AND r.to = :renter;',
+        'SELECT *, u.username as reviewer FROM `user_reviews` r LEFT JOIN `users` u ON r.from = u.id WHERE r.type = "to renter" AND r.to = :renter;',
         {
           renter: id
         }
