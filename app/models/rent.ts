@@ -15,6 +15,9 @@ export default class Rent extends BaseModel {
   declare status: string
 
   @column()
+  declare notes: string
+
+  @column()
   declare start_date: Date
 
   @column()

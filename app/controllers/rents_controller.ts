@@ -188,7 +188,7 @@ export default class RentsController {
   // pemilik menolak peminjaman buku
   public async confirmReject({ request, response, auth }: HttpContext) {
     const user = await auth.authenticate()
-    const { rent_ID } = request.body()
+    const { rent_ID, notes } = request.body()
     const rent = await Rent.find(rent_ID)
 
     try {
@@ -220,12 +220,14 @@ export default class RentsController {
       }
 
       rent.status = 'rejected'
+      rent.notes = notes
       await rent.save()
 
       return response.status(200).json({
         code: 200,
         status: 'success',
         message: 'Rent has been rejected',
+        notes: rent.notes
       })
     } catch (error) {
       return response.status(500).json({
