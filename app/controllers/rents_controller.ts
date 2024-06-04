@@ -3,6 +3,7 @@ import Rent from '#models/rent'
 import db from '@adonisjs/lucid/services/db'
 import CirculatedBook from '#models/circulated_book'
 import cron from 'node-cron'
+import { messages } from '@vinejs/vine/defaults'
 
 export default class RentsController {
   // meminjam buku
@@ -70,6 +71,58 @@ export default class RentsController {
         code: 500,
         message: 'fail',
         error: error,
+      })
+    }
+  }
+
+  // cancel rent book
+  public async cancel({ request, response, auth }: HttpContext) {
+    const user = await auth.authenticate()
+    const { rent_ID } = request.body()
+    const rent = await Rent.find(rent_ID)
+
+    try {
+      if (!rent) {
+        return response.status(404).json({
+          code: 404,
+          status: 'not found',
+          message: 'Rent not found!',
+        })
+      }
+      // Mengecek apakah pengguna yang meminta konfirmasi adalah pemilik buku
+      const circulatedBook = rent.$extras.Circulated_BookID
+      if (!circulatedBook) {
+        return response.status(404).json({
+          code: 404,
+          status: 'not found',
+          message: 'Circulated book not found!',
+        })
+      }
+      const user_ID = rent.$extras.userID
+      if (user.id !== user_ID) {
+        return response.status(403).json({
+          code: 403,
+          status: 'Forbidden',
+          message: 'You are not authorized to cancel this rent',
+        })
+      }
+
+      const rent_status = rent.status
+      // Mengubah status sewa menjadi "canceled"
+      if(rent_status == 'pending')
+      rent.status = 'canceled'
+      await rent.save()
+
+      return response.status(200).json({
+        code: 200,
+        status: 'success',
+        message: 'Rent has been canceled',
+      })
+    } catch (error) {
+      return response.status(500).json({
+        code: 500,
+        message: 'fail',
+        error: error.message,
       })
     }
   }

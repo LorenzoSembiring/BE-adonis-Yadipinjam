@@ -4,6 +4,7 @@ import RentsController from '#controllers/rents_controller'
 router.group(() => {
   router.get('/renter-status/:type?',[RentsController, 'renterStatus'])
   router.post('/borrow',[RentsController, 'borrow'])
+  router.post('/cancel',[RentsController, 'cancel'])
   router.post('/return',[RentsController, 'returnBook'])
   router.get('/confirmOwner',[RentsController, 'confirmOwner'])
   router.post('/confirmBorrow',[RentsController, 'confirmBorrow'])
