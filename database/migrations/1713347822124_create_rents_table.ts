@@ -8,7 +8,7 @@ export default class extends BaseSchema {
       table.increments('id')
       table.integer('userID').references('users.id').notNullable().unsigned().onDelete('CASCADE')
       table.integer('Circulated_BookID').references('circulated_books.id').notNullable().unsigned().onDelete('CASCADE')
-      table.enum('status', ['pending', 'confirmed', 'rejected', 'rented', 'overdue', 'returned', 'checking', 'complete'])
+      table.enum('status', ['pending', 'confirmed', 'rejected', 'rented', 'overdue', 'returned', 'checking', 'complete', 'canceled'])
       table.string('notes').nullable()
       table.date('start_date')
       table.date('end_date')
