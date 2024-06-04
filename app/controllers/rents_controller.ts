@@ -399,6 +399,24 @@ export default class RentsController {
     }
   }
 
+  static async checkReceived() {
+    const today = new Date();
+    const lastWeek = new Date(today);
+    lastWeek.setDate(today.getDate() - 7);
+    const formattedDate = lastWeek.toISOString().slice(0, 10); // Format the date for MySQL
+    try {
+      await db.rawQuery(
+        "UPDATE `rents` SET status = 'rented' WHERE start_date <= :lastWeek AND status = 'confirmed'",
+        {
+          lastWeek: formattedDate
+        }
+      );
+      console.log(`Updated rented rentals.`)
+    } catch (error) {
+      console.error("Error updating rents:", error);
+    }
+}
+
   static async checkOverdue() {
     const now = new Date()
     const formattedNow = now.toISOString().slice(0, 10) // Format the date for MySQL
@@ -419,4 +437,5 @@ export default class RentsController {
 cron.schedule('0 0 0 * * *', () => {
   console.log('Checking for overdue rentals...')
   RentsController.checkOverdue()
+  RentsController.checkReceived()
 })
